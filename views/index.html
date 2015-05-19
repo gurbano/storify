@@ -1,86 +1,30 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Application Title</title>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <meta name="Generator" content="https://callum.com">
-    <style type="text/css">
-    body {
-        background-color: #000;
-        font-family: courier;
-        margin: 0;
-        overflow: hidden;
-    }
+<% include partials/head %>
+    <link rel="stylesheet" type="text/css" href="css/storify/storify.css" />
+    <link rel="import" href="http://www.polymer-project.org/components/paper-ripple/paper-ripple.html">
+    <link rel="import" href="http://www.polymer-project.org/components/font-roboto/roboto.html">
+    <link rel="import" href="http://www.polymer-project.org/components/core-icons/core-icons.html">
+    <link rel="import" href="http://www.polymer-project.org/components/core-icons/av-icons.html">
+    <link rel="import" href="http://www.polymer-project.org/components/core-icons/social-icons.html">
     
-    a {
-        text-decoration: none;
-        color: yellow;
-    }
 
-    #drop_target {
-        width: 300px;
-        margin:10px;
-        height: 100px;
-        border: 1px dotted black;
-    }
-    #target {
+    <style type="text/css">
+    #map-canvas {
+        height: 100%;
+        margin: 0;
+        padding: 0;
         position: absolute;
-        right: 0px;
+        top: 0px;
         left: 0px;
-        width: 100%;
-        height: 100%;
-        background: rgba(255,255,255,0.1);
-    }
-    .#imeline-wrapper {
-        width: 100%;
-        height: 100%;
-        position: relative;
-        z-index: 1000;
-    }
-    #timeline {
-        width: 100%;
-        height: 40px;
-        background-color: #624e50;
-        opacity: 0.6;
-        margin: 0 auto;
-        text-align: right;
-        position: absolute;
-        bottom: 0px;
-        z-index: 1000;
-    }
-    .timeline-event{
-        width: 1px;
-        background: white;
-        height: 40px;
-        position:absolute;
-    }
-    #map-canvas{
-        width: 100%;
-        height: 100%;
     }
     </style>
-
-
-    <script type="text/javascript" src="lib/rStats.js"></script>
-    <script type="text/javascript" src="lib/jquery-2.1.4.min.js"></script>
-    <script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
-    <link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css"/>
-    <script type="text/javascript" src="lib/jquery.formatDateTime.min.js"></script>
-    <script type="text/javascript" src="lib/dat.gui.min.js"></script>
-    <script type="text/javascript" src="lib/dropzone.js"></script>
+    <div id="main">
+        <% include partials/storify/UI-edit %>
+            <% include partials/storify/UI-view %>
+    </div>
+    <script type="text/javascript" src="/lib/dropzone.js"></script>
     <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBVzd4DmZi7gTTxGgl1xxu-dt9z-IOnRvc&libraries=visualization,geometry"></script>
 
- 
-</head>
+    <!-- START APPLICATION -->
 
-<body>
-    <div id="target">
-        <div id="map-canvas"></div>
-    </div>
-
-</body>
-
-<!-- START THE APPLICATION-->
-<script type="text/javascript" src="js/dist/storify.js"></script>
-
-</html>
+    <script src="/js/dist/storify.js"></script>
+    <% include partials/foot %>

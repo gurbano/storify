@@ -1,7 +1,8 @@
-
 var Storify = {}; //namespace
-var helper = require('./src/storify/Helper.js')();
-var StoryFactory = require('./src/storify/StoryFactory.js');
+
+var helper = require('./Helper.js')();
+var StoryFactory = require('./StoryFactory.js');
+//watchify .\public\js\storify\storify.js -o .\public\js\storify\dist\storify.bundle.js
 
 init = function(_GLOBALS) {
     GLOBALS = _GLOBALS;
@@ -39,26 +40,26 @@ init = function(_GLOBALS) {
 };
 
 //require Story --> Timeline --> Frame --> Event
-var Story = require('./src/storify/Story.js');
-var StoryFactory = require('./src/storify/StoryFactory.js');
-var Wizard = require('./src/storify/Wizard.js');
-var SEngine = require('./src/storify/engine/SEngine.js');
-var SModule = require('./src/storify/modules/SModule.js');
-var GMapModule = require('./src/storify/modules/GMapModule.js');
-var SModule = require('./src/storify/modules/SModule.js');
-var ModulesManager = require('./src/storify/modules/ModulesManager.js');
-var CustomClickModule = require('./src/storify/modules/CustomClickModule.js');
+var Story = require('./Story.js');
+var StoryFactory = require('./StoryFactory.js');
+var Wizard = require('./Wizard.js');
+var SEngine = require('./engine/SEngine.js');
+var SModule = require('./modules/SModule.js');
+var GMapModule = require('./modules/GMapModule.js');
+var SModule = require('./modules/SModule.js');
+var ModulesManager = require('./modules/ModulesManager.js');
+var CustomClickModule = require('./modules/CustomClickModule.js');
 //SOURCES
-var SourcesManager = require('./src/storify/modules/SourcesManager.js');
-var PlayBackModule = require('./src/storify/modules/PlayBackModule.js');
+var SourcesManager = require('./modules/SourcesManager.js');
+var PlayBackModule = require('./modules/PlayBackModule.js');
 
-var TimelineModule = require('./src/storify/modules/TimelineModule.js');
-var EditSwitch = require('./src/storify/modules/UI/UISwitcher.js');
+var TimelineModule = require('./modules/TimelineModule.js');
+var EditSwitch = require('./modules/UI/UISwitcher.js');
 
-var DisplayPathModule = require('./src/storify/modules/DisplayPath.js');
-var FacebookSourcesModule = require('./src/storify/modules/sources/FacebookSourcesModule.js');
+var DisplayPathModule = require('./modules/DisplayPath.js');
+var FacebookSourcesModule = require('./modules/sources/FacebookSourcesModule.js');
 
-var KMLImporter = require('./src/storify/modules/KMLImporter.js');
+var KMLImporter = require('./modules/KMLImporter.js');
 
 var startStorify = function(err, user) {
     if (err) {
@@ -271,67 +272,4 @@ var step3 = {
 };
 
 
-*/
-
-
-
-
-
-
-
-
-
-/*
-var test = require('./src/test');
-var SGUI = require('./src/SGUI');
-var SStory = require('./src/SStory');
-var EventBus = require('./src/EventBus');
-
-
-
-
-function S(opts) {
-    var self = this;
-    opts = opts || {};
-    if (!(this instanceof S)) return new S(opts);
-   	this.bus = new EventBus(this,{});
-    this.datgui = new dat.GUI();
-    this.sgui = new SGUI(this,{});
-    this.story = new SStory(this, {
-    	startTime : new Date().getTime(),
-    	endTime : new Date("1/1/1900").getTime()}
-	);
-
-    
-    this.subscribe = function(event, fn) {
-        self.bus.subscribe(event, fn);
-    };
-    this.unsubscribe = function(event, fn) {
-        self.bus.unsubscribe(event, fn);
-    };
-    this.publish = function(event, params) {
-        self.bus.publish(event, params);
-    };
-    self.subscribe('klmuploaded',function(event,params){
-    	self.story.importKmlEvents(params.ret);
-    	self.sgui.close('kmlImporter');
-    });
-
-}
-
-S.prototype.start = function() {
-    console.info(STORIFY);
-    this.subscribe('test', function(event, params){
-    	console.info('triggered',event, params);
-    });
-    
-};
-
-
-
-var STORIFY = {};
-STORIFY.app = new S();
-$(document).ready(function() {
-    STORIFY.app.start();
-});
 */
