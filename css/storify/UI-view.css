@@ -1,0 +1,13 @@
+#UI-VIEW{
+	position: absolute;
+	top: 0px;
+	left: 0px;
+	opacity: 0.0;
+}
+#UI-VIEW.active{
+	display: block;
+	opacity: 1.0;
+}
+#UI-VIEW div{
+    z-index: 10000;
+}

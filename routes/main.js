@@ -31,6 +31,16 @@ module.exports = function($) {
         }
     });
     server.route({
+        method: 'GET',
+        path: '/css/{param*}',
+        handler: {
+            directory: {
+                path: './css',
+                listing: false
+            }
+        }
+    });
+    server.route({
         method: 'POST',
         path: '/uploadKML',
         config: {

@@ -861,7 +861,7 @@ KMLImporter.prototype.postInit = function() {
         this.UIedit); //parent div
 
     var myDropzone = new Dropzone("div#___KMLImporter", {
-        url: "/storify/uploadKML"
+        url: "/uploadKML"
     });
     myDropzone.on("success", function(file, res) {
         //console.info(res);

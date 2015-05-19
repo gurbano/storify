@@ -1,14 +1,99 @@
-<% include partials/head %>
-    <link rel="stylesheet" type="text/css" href="css/storify/storify.css" />
-    <link rel="import" href="http://www.polymer-project.org/components/paper-ripple/paper-ripple.html">
-    <link rel="import" href="http://www.polymer-project.org/components/font-roboto/roboto.html">
-    <link rel="import" href="http://www.polymer-project.org/components/core-icons/core-icons.html">
-    <link rel="import" href="http://www.polymer-project.org/components/core-icons/av-icons.html">
-    <link rel="import" href="http://www.polymer-project.org/components/core-icons/social-icons.html">
-    
+<!DOCTYPE html>
+<html class="no-js">
+
+<head>
+     
+    <script type="text/javascript" src="lib/rStats.js"></script>
+    <script type="text/javascript" src="lib/jquery-2.1.4.min.js"></script>
+    <script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css"/>
+    <script type="text/javascript" src="lib/jquery.formatDateTime.min.js"></script>
+    <script type="text/javascript" src="lib/dat.gui.min.js"></script>
+    <script type="text/javascript" src="lib/dropzone.js"></script>
+    <script type="text/javascript" src="lib/hello.min.js"></script>
+    <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBVzd4DmZi7gTTxGgl1xxu-dt9z-IOnRvc&libraries=visualization,geometry"></script>
 
     <style type="text/css">
-    #map-canvas {
+
+    #blocker {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+    }
+    #instructions {
+        width: 100%;
+        height: 100%;
+        display: -webkit-box;
+        display: -moz-box;
+        display: box;
+        -webkit-box-orient: horizontal;
+        -moz-box-orient: horizontal;
+        box-orient: horizontal;
+        -webkit-box-pack: center;
+        -moz-box-pack: center;
+        box-pack: center;
+        -webkit-box-align: center;
+        -moz-box-align: center;
+        box-align: center;
+        color: #ffffff;
+        text-align: center;
+        cursor: pointer;
+    }
+
+ 
+    </style>
+    <style type="text/css">
+    body {
+        background-color: #000;
+        font-family: courier;
+        margin: 0;
+        overflow: hidden;
+    }
+    
+    a {
+        text-decoration: none;
+        color: yellow;
+    }
+
+    #drop_target {
+        width: 300px;
+        margin:10px;
+        height: 100px;
+        border: 1px dotted black;
+    }
+    #target {
+        position: absolute;
+        right: 0px;
+        left: 0px;
+        width: 100%;
+        height: 100%;
+        background: rgba(255,255,255,0.1);
+    }
+    .#imeline-wrapper {
+        width: 100%;
+        height: 100%;
+        position: relative;
+        z-index: 1000;
+    }
+    #timeline {
+        width: 100%;
+        height: 40px;
+        background-color: #624e50;
+        opacity: 0.6;
+        margin: 0 auto;
+        text-align: right;
+        position: absolute;
+        bottom: 0px;
+        z-index: 1000;
+    }
+    .timeline-event{
+        width: 1px;
+        background: white;
+        height: 40px;
+        position:absolute;
+    }
+     #map-canvas {
         height: 100%;
         margin: 0;
         padding: 0;
@@ -17,14 +102,60 @@
         left: 0px;
     }
     </style>
+
+    <script>
+        var init = false;
+    </script>
+
+    </head>
+
     <div id="main">
-        <% include partials/storify/UI-edit %>
-            <% include partials/storify/UI-view %>
+        <link rel="stylesheet" type="text/css" href="./css/storify/UI-edit.css">
+        <link href='http://fonts.googleapis.com/css?family=Roboto' rel='stylesheet' type='text/css'>
+
+
+        <div id = 'UI-EDIT' class="active">
+        </div>
+        <script>
+            $(document).ready(function(){
+                $('#UI-EDIT').height($(window).height());
+                $('#UI-EDIT').width($(window).width());
+                $(window).smartresize(function() {
+                     $('#UI-EDIT').height($(window).height());
+                     $('#UI-EDIT').width($(window).width());
+                });
+            });
+            
+        </script>
+        <link rel="stylesheet" type="text/css" href="./css/storify/UI-view.css">
+        <div id = 'UI-VIEW' ></div>
+        <script>
+            $(document).ready(function(){
+                $('#UI-VIEW').height($(window).height());
+                $('#UI-VIEW').width($(window).width());
+                $(window).smartresize(function() {
+                     $('#UI-VIEW').height($(window).height());
+                     $('#UI-VIEW').width($(window).width());
+                });
+            });
+            
+        </script>
     </div>
-    <script type="text/javascript" src="/lib/dropzone.js"></script>
-    <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBVzd4DmZi7gTTxGgl1xxu-dt9z-IOnRvc&libraries=visualization,geometry"></script>
+
+
 
     <!-- START APPLICATION -->
 
-    <script src="/js/dist/storify.js"></script>
-    <% include partials/foot %>
+    <script src="./js/dist/storify.js"></script>
+    <div id='socialbar'>
+        <div id='profilepic'></div>
+    </div>
+    </body>
+
+    <script src="./js/src/usm.js"></script>
+    <!-- gurbano user management -->
+
+    <script src="./js/src/start.js"></script>
+
+    </html>
+
