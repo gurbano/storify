@@ -2092,8 +2092,8 @@ var startStorify = function(err, user) {
 
 
 
-/*SKIP WIZARD NOW
-        if (false) {
+//SKIP WIZARD NOW
+        if (true) {
             swal({ //WELCOME PAGE
                 title: "Welcome " + user.first_name,
                 text: "Here you will create your first story.\n Are you ready?",
@@ -2164,7 +2164,6 @@ var step3 = {
 };
 
 
-*/
 
 
 
@@ -2173,61 +2172,6 @@ var step3 = {
 
 
 
-
-/*
-var test = require('./src/test');
-var SGUI = require('./src/SGUI');
-var SStory = require('./src/SStory');
-var EventBus = require('./src/EventBus');
-
-
-
-
-function S(opts) {
-    var self = this;
-    opts = opts || {};
-    if (!(this instanceof S)) return new S(opts);
-   	this.bus = new EventBus(this,{});
-    this.datgui = new dat.GUI();
-    this.sgui = new SGUI(this,{});
-    this.story = new SStory(this, {
-    	startTime : new Date().getTime(),
-    	endTime : new Date("1/1/1900").getTime()}
-	);
-
-    
-    this.subscribe = function(event, fn) {
-        self.bus.subscribe(event, fn);
-    };
-    this.unsubscribe = function(event, fn) {
-        self.bus.unsubscribe(event, fn);
-    };
-    this.publish = function(event, params) {
-        self.bus.publish(event, params);
-    };
-    self.subscribe('klmuploaded',function(event,params){
-    	self.story.importKmlEvents(params.ret);
-    	self.sgui.close('kmlImporter');
-    });
-
-}
-
-S.prototype.start = function() {
-    console.info(STORIFY);
-    this.subscribe('test', function(event, params){
-    	console.info('triggered',event, params);
-    });
-    
-};
-
-
-
-var STORIFY = {};
-STORIFY.app = new S();
-$(document).ready(function() {
-    STORIFY.app.start();
-});
-*/
 },{"./src/storify/Helper.js":"C:\\workspaces\\github\\storify\\js\\src\\storify\\Helper.js","./src/storify/Story.js":"C:\\workspaces\\github\\storify\\js\\src\\storify\\Story.js","./src/storify/StoryFactory.js":"C:\\workspaces\\github\\storify\\js\\src\\storify\\StoryFactory.js","./src/storify/Wizard.js":"C:\\workspaces\\github\\storify\\js\\src\\storify\\Wizard.js","./src/storify/engine/SEngine.js":"C:\\workspaces\\github\\storify\\js\\src\\storify\\engine\\SEngine.js","./src/storify/modules/CustomClickModule.js":"C:\\workspaces\\github\\storify\\js\\src\\storify\\modules\\CustomClickModule.js","./src/storify/modules/DisplayPath.js":"C:\\workspaces\\github\\storify\\js\\src\\storify\\modules\\DisplayPath.js","./src/storify/modules/GMapModule.js":"C:\\workspaces\\github\\storify\\js\\src\\storify\\modules\\GMapModule.js","./src/storify/modules/KMLImporter.js":"C:\\workspaces\\github\\storify\\js\\src\\storify\\modules\\KMLImporter.js","./src/storify/modules/ModulesManager.js":"C:\\workspaces\\github\\storify\\js\\src\\storify\\modules\\ModulesManager.js","./src/storify/modules/PlayBackModule.js":"C:\\workspaces\\github\\storify\\js\\src\\storify\\modules\\PlayBackModule.js","./src/storify/modules/SModule.js":"C:\\workspaces\\github\\storify\\js\\src\\storify\\modules\\SModule.js","./src/storify/modules/SourcesManager.js":"C:\\workspaces\\github\\storify\\js\\src\\storify\\modules\\SourcesManager.js","./src/storify/modules/TimelineModule.js":"C:\\workspaces\\github\\storify\\js\\src\\storify\\modules\\TimelineModule.js","./src/storify/modules/UI/UISwitcher.js":"C:\\workspaces\\github\\storify\\js\\src\\storify\\modules\\UI\\UISwitcher.js","./src/storify/modules/sources/FacebookSourcesModule.js":"C:\\workspaces\\github\\storify\\js\\src\\storify\\modules\\sources\\FacebookSourcesModule.js"}],"C:\\workspaces\\github\\storify\\node_modules\\inherits\\inherits_browser.js":[function(require,module,exports){
 if (typeof Object.create === 'function') {
   // implementation from standard node.js 'util' module

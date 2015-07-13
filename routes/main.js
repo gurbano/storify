@@ -1,13 +1,24 @@
 module.exports = function($) {
     var server = $.get('server');
+     server.route({
+        method: 'GET',
+        path: '/',
+        handler: {
+            view: 'index'
+        }
+    });
     server.route({
         method: 'GET',
         path: '/index',
-        /*handler: function(request, reply) {
-            reply.view('index');
-        }*/
         handler: {
             view: 'index'
+        }
+    });
+     server.route({
+        method: 'GET',
+        path: '/edit',
+        handler: {
+            view: 'edit'
         }
     });
     server.route({

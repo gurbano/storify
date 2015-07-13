@@ -1,8 +1,10 @@
 //SGUI
-
+var Timeline = require('./Timeline.js');
 var config = {};
-config.kmlimport = require('./gui/kmlimporter.js');
-config.timeline = require('./gui/timeline.js');
+config.kmlimport = require('./gui/kmlImporter.js');
+config.kmltimeline = require('./gui/kmlTimeline.opt.js');
+config.phototimeline = require('./gui/photoTimeline.js');
+config.datetimeline = require('./gui/dateTimeline.js');
 
 
 module.exports = SGUI;
@@ -20,7 +22,7 @@ function SGUI(app, opts) {
        		url: "/uploadKML"
 	});
 	myDropzone.on("success", function(file, res) {
-		self.app.bus.publish('klmuploaded',res);
+		self.app.bus.publish('EVENT.GUI.KMLUPLOADED',res);
 	});
 	myDropzone.on("complete", function(file) {
 
@@ -28,33 +30,25 @@ function SGUI(app, opts) {
 	myDropzone.on("uploadprogress", function(file, progress) {
 
 	});
-	/*TIMELINE*/
-	var timeline = this.addGUI('timeline-wrapper',{classes: 'VIEW-GUI', config: config.timeline });
-  	this.app.bus.subscribe('STORY.REFRESH',function(event,params){
-        var $tline = $('#timeline');
-        var delta = self.app.story.endTime - self.app.story.startTime;
-        var width = $tline.width();
-        var events = self.app.story.events;
-        for (var i = 0; i <= events.length - 1; i++) {
-        	var offset = events[i].delta/delta;
-        	var offsetPx = Math.floor(offset * width);
-        	//console.info(i,offset, offsetPx);
-        	var $div = $("<div>", {id: events[i].delta,  class: "timeline-event"});
-        	$div.attr('index',i);
-        	$div.css('left',  offsetPx +'px');
-        	$div.ev = events[i];
-        	$div.hover( function(){
-        		var event = self.app.story.events[$(this).attr('index')];
-        		//console.info(event);
-        		self.map.setCenter(new google.maps.LatLng(event.where.lat, event.where.lng))
-        		self.marker.setPosition(self.map.getCenter());
-        	}, function(){
 
-        	} ) 
-        	$tline.append($div);
-        };
-                        
-    });
+
+	/*KML TIMELINE*/
+    /*photo timeline*/
+    this.photoTimeline = new Timeline(config.phototimeline, function(that){
+		self.addGUI('photo-timeline-wrapper',{classes: 'VIEW-GUI', config: that.opts });
+		that.div = $('#photo-timeline-wrapper > div');
+	});
+    /*Calendar timeline*/
+    this.dateTimeline = new Timeline(config.datetimeline, function(that){
+		self.addGUI('date-timeline-wrapper',{classes: 'VIEW-GUI', config: that.opts });
+		that.div = $('#date-timeline-wrapper > div');
+	});
+    /*KML TIMELINE*/
+	this.kmlTimeline = new Timeline(config.kmltimeline, function(that){
+		self.addGUI('kml-timeline-wrapper',{classes: 'VIEW-GUI', config: that.opts });
+		that.div = $('#kml-timeline-wrapper > div');
+	});
+    
   	/*GMAP*/
   	var mapOptions = {
         center: new google.maps.LatLng(41.54, 12.30),
@@ -67,6 +61,8 @@ function SGUI(app, opts) {
         position:  this.map.getCenter(),
         map: this.map
     });
+
+
     return self;
 }
 

@@ -10,12 +10,13 @@ function EventManager(app, opts) {
 };
 
 EventManager.prototype.subscribe = function(event, fn) {
-    $(document).bind(event, fn);
+    $(document).on(event, fn);
 };
 EventManager.prototype.unsubscribe = function(event, fn) {
     $(document).unbind(event, fn);
 };
 EventManager.prototype.publish = function(event, params) {
-
+	console.info(event, params);
     $(document).trigger(event, params);
+    
 };

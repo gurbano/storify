@@ -15,23 +15,34 @@ function SStory(app, opts) {
 	this.description = this.opts.description || 'new story to be filled';
 	this.createdOn = this.opts.createdOn || helper.dateToString(new Date());
 	this.events = [];
+    this.importKmlEvents = function(data) {  
+        var kmlEvents = [];
+        if (new Date(data[0].when).getTime()<self.startTime) {        
+            self.startTime = new Date(data[0].when).getTime();
+            console.info('Start moved to ' + new Date(self.startTime));
+            self.app.bus.publish('EVENT.STORY.REFRESH.DATE');
+        }
+        if (new Date(data[data.length-1].when).getTime()>self.endTime) {
+            self.endTime = new Date(data[data.length-1].when).getTime();
+            console.info('End moved to ' + new Date(self.endTime));
+            self.app.bus.publish('EVENT.STORY.REFRESH.DATE');
+        }
+        for (var i = 0 ; i < data.length; i++) {
+            var startTime = new Date(data[i].when).getTime();
+            kmlEvents.push({type: 'kml', when: startTime, where: data[i].where , delta: startTime - self.startTime });
+            self.events.push({type: 'kml', when: startTime, where: data[i].where , delta: startTime - self.startTime });
+        };
+        self.app.bus.publish('EVENT.STORY.REFRESH.KML',{events: kmlEvents});
+    };
     return self;
 }
 
-SStory.prototype.importKmlEvents = function(data) {   //
-    if (new Date(data[0].when).getTime()<this.startTime) {        
-        this.startTime = new Date(data[0].when).getTime();
-        console.info('Start moved to ' + new Date(this.startTime));
+
+SStory.prototype.getEvents = function(type) {
+    function hasType(_event) {
+        return _event.type === type;
     }
-    if (new Date(data[data.length-1].when).getTime()>this.endTime) {
-        this.endTime = new Date(data[data.length-1].when).getTime();
-        console.info('End moved to ' + new Date(this.endTime));
-    }
-    for (var i = 0 ; i < data.length; i++) {
-        var startTime = new Date(data[i].when).getTime();
-        this.events.push({type: 'kml', when: startTime, where: data[i].where , delta: startTime - this.startTime });
-    };
-    this.app.bus.publish('STORY.REFRESH');
+    return this.events.filter(hasType);
 };
 
 SStory.prototype.parseKML = function(content, callback) {

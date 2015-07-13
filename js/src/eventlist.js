@@ -1,0 +1,6 @@
+EVENT.GUI.TIMELINE.HOVER
+EVENT.GUI.TIMELINE.CLICK
+
+EVENT.GUI.KMLUPLOADED
+EVENT.STORY.REFRESH.KML (kml are added/removed to the story)
+EVENT.STORY.REFRESH.PHOTO (photos are added/removed to the story)
