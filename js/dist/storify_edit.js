@@ -19,24 +19,44 @@ module.exports = EventManager
 
 
 function EventManager(app, opts) {
-    var self = this;
+	var self = this;
     opts = opts || {};
     if (!(this instanceof EventManager)) return new EventManager(app, opts);
     this.app = app;
-    return self;
+    this.listeners = {};
+    this.subscribe = function(target, event, fn) {
+	    //$(document).bind(event, fn);
+	    if (!self.listeners[event]){
+	    	self.listeners[event] = [];
+	    }
+	    self.listeners[event].push({obj: target, func: fn});
+	};
+	this.unsubscribe = function(target, event, fn) {
+	   //$(document).unbind(event, fn);
+	   if (self.listeners[event]){
+	   		for (var i = self.listeners[event].length - 1; i >= 0; i--) {
+	   			if (self.listeners[event][i].obj===target){
+	   				//todo: remove
+	   			}
+	   		};
+	   }
+	   	
+	};
+	this.publish = function(event, params) {
+		console.info(event, params);
+	    //$(document).trigger(event, params);
+	    if (self.listeners[event]){
+	    	var l = self.listeners[event];
+	    	for (var i = l.length - 1; i >= 0; i--) {
+	    		var tmp = l[i];
+	    		tmp.func.apply(tmp.obj,[params]);
+	    	};
+	    }
+	    
+	};
+    return this;
 };
 
-EventManager.prototype.subscribe = function(event, fn) {
-    $(document).on(event, fn);
-};
-EventManager.prototype.unsubscribe = function(event, fn) {
-    $(document).unbind(event, fn);
-};
-EventManager.prototype.publish = function(event, params) {
-	console.info(event, params);
-    $(document).trigger(event, params);
-    
-};
 },{}],"C:\\workspaces\\github\\storify\\js\\src\\EventType.js":[function(require,module,exports){
 module.exports ={
 	GENERIC : {id : 000, type : 'GENERIC'},
@@ -100,309 +120,7 @@ function GpsEvent(opts){
 };
 
 inherits(GpsEvent,Event);
-},{"./Event.js":"C:\\workspaces\\github\\storify\\js\\src\\Event.js","./EventType.js":"C:\\workspaces\\github\\storify\\js\\src\\EventType.js","inherits":"C:\\workspaces\\github\\storify\\node_modules\\inherits\\inherits_browser.js"}],"C:\\workspaces\\github\\storify\\js\\src\\SGUI_EDIT.js":[function(require,module,exports){
-//SGUI
-var Timeline = require('./Timeline.js');
-var config = {};
-config.kmlimport = require('./gui/kmlImporter.js');
-config.kmltimeline = require('./gui/kmlTimeline.opt.js');
-config.phototimeline = require('./gui/photoTimeline.js');
-config.datetimeline = require('./gui/dateTimeline.js');
-
-
-module.exports = SGUI;
-
-function SGUI(app, opts) {
-    var self = this;
-    opts = opts || {};
-    if (!(this instanceof SGUI)) return new SGUI(app, opts);
-    this.app = app;
-    this.target = $('#target');
-    this.guis = {};
-    /*KML IMPORTER*/
-    var importerGUI = this.addGUI('kmlImporter',{classes: 'EDIT-GUI', config: config.kmlimport });
-    var myDropzone = new Dropzone("#drop_target", {
-       		url: "/uploadKML"
-	});
-	myDropzone.on("success", function(file, res) {
-		self.app.bus.publish('EVENT.GUI.KMLUPLOADED',res);
-	});
-	myDropzone.on("complete", function(file) {
-
-	});
-	myDropzone.on("uploadprogress", function(file, progress) {
-
-	});
-
-
-	/*KML TIMELINE*/
-    /*photo timeline*/
-    this.photoTimeline = new Timeline(config.phototimeline, function(that){
-		self.addGUI('photo-timeline-wrapper',{classes: 'VIEW-GUI', config: that.opts });
-		that.div = $('#photo-timeline-wrapper > div');
-	});
-    /*Calendar timeline*/
-    this.dateTimeline = new Timeline(config.datetimeline, function(that){
-		self.addGUI('date-timeline-wrapper',{classes: 'VIEW-GUI', config: that.opts });
-		that.div = $('#date-timeline-wrapper > div');
-	});
-    /*KML TIMELINE*/
-	this.kmlTimeline = new Timeline(config.kmltimeline, function(that){
-		self.addGUI('kml-timeline-wrapper',{classes: 'VIEW-GUI', config: that.opts });
-		that.div = $('#kml-timeline-wrapper > div');
-	});
-    
-  	/*GMAP*/
-  	var mapOptions = {
-        center: new google.maps.LatLng(41.54, 12.30),
-        disableDefaultUI: true,
-        zoom: 12,
-        mapTypeId: google.maps.MapTypeId.ROADMAP
-    };
-    this.map = new google.maps.Map(document.getElementById('map-canvas'),  mapOptions);
-    this.marker = new google.maps.Marker({
-        position:  this.map.getCenter(),
-        map: this.map
-    });
-
-
-    return self;
-}
-
-SGUI.prototype.printInfo = function() {
-	console.info(this.app);
-};
-
-
-SGUI.prototype.close = function(_id) {
-	if (this.guis[_id].modal){
-		this.guis[_id].dialog( "close" );
-	}else{
-		this.guis[_id].hide();
-	}
-};
-
-SGUI.prototype.addGUI = function(_id, opts) {
-	var width = opts.config.width || opts.width || "200";
-	var height = opts.config.height || opts.height || "200"
-	var $div = $("<div>", {id: _id, class: "GUI"});
-	this.target.append($div);
-	this.guis[_id] = $div;
-	$div.addClass(opts.classes || "gui");
-	if (opts.config.modal){
-		$div.modal = true;
-		$div.dialog({width:width, height:height});	
-	}
-	$div.append($(opts.config.div));
-	opts.config.init();
-
-	return $div;
-};
-},{"./Timeline.js":"C:\\workspaces\\github\\storify\\js\\src\\Timeline.js","./gui/dateTimeline.js":"C:\\workspaces\\github\\storify\\js\\src\\gui\\dateTimeline.js","./gui/kmlImporter.js":"C:\\workspaces\\github\\storify\\js\\src\\gui\\kmlImporter.js","./gui/kmlTimeline.opt.js":"C:\\workspaces\\github\\storify\\js\\src\\gui\\kmlTimeline.opt.js","./gui/photoTimeline.js":"C:\\workspaces\\github\\storify\\js\\src\\gui\\photoTimeline.js"}],"C:\\workspaces\\github\\storify\\js\\src\\SStory.js":[function(require,module,exports){
-//SStory
-
-var helper = require('./helper.js')();
-
-module.exports = SStory;
-
-function SStory(app, opts) {
-    var self = this;
-    this.opts = helper.extend({}, opts);
-    if (!(this instanceof SStory)) return new SStory(app, opts);
-    this.app = app;
-    this.startTime = opts.startTime || new Date().getTime();
-    this.endTime = opts.endTime || new Date().getTime();
-	this.title = this.opts.title || 'untitled story';
-	this.description = this.opts.description || 'new story to be filled';
-	this.createdOn = this.opts.createdOn || helper.dateToString(new Date());
-	this.events = [];
-    this.importKmlEvents = function(data) {  
-        var kmlEvents = [];
-        if (new Date(data[0].when).getTime()<self.startTime) {        
-            self.startTime = new Date(data[0].when).getTime();
-            console.info('Start moved to ' + new Date(self.startTime));
-            self.app.bus.publish('EVENT.STORY.REFRESH.DATE');
-        }
-        if (new Date(data[data.length-1].when).getTime()>self.endTime) {
-            self.endTime = new Date(data[data.length-1].when).getTime();
-            console.info('End moved to ' + new Date(self.endTime));
-            self.app.bus.publish('EVENT.STORY.REFRESH.DATE');
-        }
-        for (var i = 0 ; i < data.length; i++) {
-            var startTime = new Date(data[i].when).getTime();
-            kmlEvents.push({type: 'kml', when: startTime, where: data[i].where , delta: startTime - self.startTime });
-            self.events.push({type: 'kml', when: startTime, where: data[i].where , delta: startTime - self.startTime });
-        };
-        self.app.bus.publish('EVENT.STORY.REFRESH.KML',{events: kmlEvents});
-    };
-    return self;
-}
-
-
-SStory.prototype.getEvents = function(type) {
-    function hasType(_event) {
-        return _event.type === type;
-    }
-    return this.events.filter(hasType);
-};
-
-SStory.prototype.parseKML = function(content, callback) {
-	xml2js.parseString(content, function(err, result) {
-    	if (err) {
-            callback(err, null);
-        }
-        var when = result.kml.Document[0].Placemark[0]['gx:Track'][0].when;
-        var where = result.kml.Document[0].Placemark[0]['gx:Track'][0]['gx:coord'];
-        /**
-        * start : DATE
-        * end : DATE
-        * points : []
-        */
-        var obj = {};
-        obj.ret = [];
-        obj.start = new Date(when[0]);
-        obj.end = new Date(when[when.length - 1]);		
-		for (var ii = 0; ii < when.length; ii++) {
-        	var event = {
-               'when': new Date(when[ii]),
-               'where': {
-                    lng: where[ii].split(' ')[0],
-                    lat: where[ii].split(' ')[1]
-                }
-            };
-            obj.ret.push(event);
-        }
-        callback(null, obj);
-	});
-};
-
-},{"./helper.js":"C:\\workspaces\\github\\storify\\js\\src\\helper.js"}],"C:\\workspaces\\github\\storify\\js\\src\\Timeline.js":[function(require,module,exports){
-var Frame = require('./Frame.js');
-var helper = require('./storify/Helper.js')();
-
-module.exports = Timeline;
-
-function Timeline(opts, cb) {
-    if (!(this instanceof Timeline)) return new Timeline(opts,cb);
-    this.opts = opts;
-    this.scale = opts.scale || 1; // delta minutes between frames
-    this.frames = opts.frames || [];
-    this.start = opts.start || 0; // ms
-    this.end = opts.end || 0; // ms
-    this.events = opts.events || [];
-    if (cb){
-        cb(this);
-    }
-    return this;
-}
-
-Timeline.prototype.getMsStep = function() {
-    return this.scale * 60 * 1000;
-};
-Timeline.prototype.getPercAtFrame = function(_f, _precision) {
-    var precision = _precision || 2;
-    var frameIndex = Math.max(0, Math.min(_f, this.steps - 1));
-    var offset = ((frameIndex / (this.steps - 1)) * (100)).toFixed(precision);
-    return offset;
-};
-Timeline.prototype.getFrameAtPerc = function(_p) {
-    var percentage = Math.max(0, Math.min(_p, 100));
-    var offset = ((percentage / 100) * (this.steps - 1)).toFixed(0);
-    return this.frames[offset];
-};
-
-Timeline.prototype.extend = function(newstart, newend) {
-    //console.info(this.frames, helper.shallowCopy(this.frames));
-    var frameCopy = helper.shallowCopy(this.frames);
-    this.start = newstart;
-    this.end = newend;
-    this.frames = [];
-    for (var i = this.events.length - 1; i >= 0; i--) {
-        if (this.events[i].subtype && this.events[i].subtype === '__auto') {
-            this.events = this.events.splice(i, 1); //index, howmany
-        }
-    };
-    this.initialize();
-};
-
-Timeline.prototype.addEvent = function(event) {
-    this.events.push(event);
-    for (var i = event.start_frame; i <= event.end_frame; i++) {
-        this.frames[i].events.push(event); //cache
-    };
-};
-
-Timeline.prototype.initialize = function() {
-    var startMs = this.start.getTime();
-    var endMs = this.end.getTime();
-    var diffMs = endMs - startMs;
-    var diffm = diffMs / 1000 / 60;
-    var diffh = diffm / 60;
-    var diffd = diffh / 24;
-    var self = this; //things are gonna get messy
-
-    this.steps = (diffm / this.scale).toFixed(0);
-    for (var i = 0; i < this.steps; i++) {
-        var frame = new Frame({
-            index: i,
-            time: startMs + (i * 1000 * 60 * this.scale),
-            events: [] //cache is initialized 
-        });
-        this.frames.push(frame);
-    }
-    //console.info('Timeline initialized', this.start,this.end, ' steps: ',this.steps);
-    //console.info(this);
-};
-},{"./Frame.js":"C:\\workspaces\\github\\storify\\js\\src\\Frame.js","./storify/Helper.js":"C:\\workspaces\\github\\storify\\js\\src\\storify\\Helper.js"}],"C:\\workspaces\\github\\storify\\js\\src\\gui\\dateTimeline.js":[function(require,module,exports){
-module.exports  = {
-	width: $(document).width(),
-	height : 200,
-	div: '<div class="timeline"><span>DATE</span></div>',
-	init: function() {
-
-	},
-	addEvents: function(){}
-};
-},{}],"C:\\workspaces\\github\\storify\\js\\src\\gui\\kmlImporter.js":[function(require,module,exports){
-module.exports = {
-	modal: true,
-	width: 800,
-	height : 200,
-	div: '<input type="text" id="__start"></input> <input type="text" id="__end"></input> <input type="button" id="__button" value="Import"></input><div id="drop_target">&nbsp;</div>',
-	init: function() {
-		$( "#__start" ).datepicker({ 
-			showOtherMonths: true,
-      		selectOtherMonths: true});
-		$( "#__end" ).datepicker({ 
-			showOtherMonths: true,
-      		selectOtherMonths: true});
-		$( "#__button" ).click(function(){
-			var url = "https://maps.google.com/locationhistory/b/0/kml?startTime="+ new Date($( "#__start" ).val()).getTime()+"&endTime="+ new Date($( "#__end" ).val()).getTime();
-			window.open(url,'_blank');
-		});		
-	}
-};
-},{}],"C:\\workspaces\\github\\storify\\js\\src\\gui\\kmlTimeline.opt.js":[function(require,module,exports){
-module.exports  = {
-	width: $(document).width(),
-	height : 200,
-	div: '<div class="timeline"><span>KML</span></div>',
-	init: function(wrapper) {
-
-	},
-	addEvents: function(){}
-};
-},{}],"C:\\workspaces\\github\\storify\\js\\src\\gui\\photoTimeline.js":[function(require,module,exports){
-module.exports  = {
-	width: $(document).width(),
-	height : 200,
-	div: '<div class="timeline"><span>PHOTO</span></div>',
-	init: function(wrapper) {
-
-	},
-	addEvents: function(){}
-};
-},{}],"C:\\workspaces\\github\\storify\\js\\src\\helper.js":[function(require,module,exports){
+},{"./Event.js":"C:\\workspaces\\github\\storify\\js\\src\\Event.js","./EventType.js":"C:\\workspaces\\github\\storify\\js\\src\\EventType.js","inherits":"C:\\workspaces\\github\\storify\\node_modules\\inherits\\inherits_browser.js"}],"C:\\workspaces\\github\\storify\\js\\src\\Helper.js":[function(require,module,exports){
 module.exports = Helper;
 
 function Helper() {
@@ -538,7 +256,538 @@ Helper.prototype.getUID = function() {
 
 
 
-},{}],"C:\\workspaces\\github\\storify\\js\\src\\storify\\Helper.js":[function(require,module,exports){
+},{}],"C:\\workspaces\\github\\storify\\js\\src\\KMLService.js":[function(require,module,exports){
+module.exports = KMLService;
+var helper = require('./Helper.js')();
+var GpsEvent = require('./GpsEvent.js');
+/**
+ * GMAP MODULE
+ * !!! DOM NOT READY YET WHEN CALLED
+ * manages integration with google maps
+ *
+ * @param {Object} opts
+ */
+var LOCAL = {};
+
+function KMLService(parent, opts) {
+    var self = this; //things are gonna get nasty
+    this.parent = parent;
+
+    this.pp = {};
+    /**
+     * go trough the events.
+     *     for each events sets ev.prev and ev.next
+     *     for each event x, search the followers, until it finds a real one.
+     *     then x.next is set as the latter
+     * @param  {[type]} events [description]
+     * @return {[type]}        [description]
+     */
+    this.pp.fixNeighbours = function(opts, events) {
+        var now = new Date().getTime();
+        console.info('*** postProcessing fixNeighbours started');
+        for (var i = 0; i < events.length; i++) {
+            if (i > 0) {
+                for (var y = i - 1; y >= 0; y--) { //fix prev
+                    var prev = events[y];
+                    if (prev.isReal) {
+                        events[i].prev = prev;
+                        events[i].postProcessingInfo.push('fixNeighbours - fixed prev');
+                        break;
+                    }
+                }
+            } else {
+                events[0].prev = events[0];
+            }
+            if (i < events.length - 1) {
+                for (var y = i + 1; y < events.length; y++) { //fix next
+                    var succ = events[y];
+                    if (succ.isReal) {
+                        events[i].next = succ;
+                        events[i].postProcessingInfo.push('fixNeighbours - fixed succ');
+                        break;
+                    }
+                };
+            } else {
+                events[events.length - 1].next = events[events.length - 1];
+            }
+        };
+        console.info('*** postProcessing fixNeighbours ended in ' + (new Date().getTime() - now) + 'ms');
+        return events;
+    }; // fix neighbours 
+    /**
+     * if event
+     *     !isReal && //we don't have a relevation in the frame time slot
+     *     delta_meters(next,prev) > threshold1 && // we interpolate only if the 'user' has moved (not sleeping)
+     *     delta_time(next,prev) > threshold2 //we interpolate only ove rthreshold
+     * @param  {[type]} opts   [description]
+     * @param  {[type]} events [description]
+     * @return {[type]}        [description]
+     */
+    this.pp.interpolator = function(opts, events) {
+        var interpolate = function(ev, pre, post) {
+            var time = (ev.end_time + ev.start_time) / 2;
+            var newLat = helper.easeInOutQuad(
+                Number(time - pre.real_time), //elapsed -- steps 
+                Number(pre.position.lat()), //
+                Number(post.position.lat()) - Number(pre.position.lat()),
+                Number(post.real_time) - Number(pre.real_time)
+            );
+            var newLng = helper.easeInOutQuad(
+                Number(time - pre.real_time), //elapsed -- steps 
+                Number(pre.position.lng()), //
+                Number(post.position.lng()) - Number(pre.position.lng()),
+                Number(post.real_time) - Number(pre.real_time)
+            );
+            ev.interpolated = true;
+            ev.position = new google.maps.LatLng(newLat, newLng);
+
+            var dist = helper.distance(
+                events[ev.index - 1].position,
+                ev.position
+            ).toFixed(2); //distance INTERPOLATED (distance from the previous event, whether real or not)
+            ev.speed = {
+                ms: ((dist/60) / ev.scale).toFixed(2),
+                kmh: (3.6 * (dist/60) / ev.scale).toFixed(1)
+            };
+            events[i].postProcessingInfo.push('interpolator - interpolated');
+        };
+
+
+        var th_meters = opts.sensXY || 3; //x meters * minute
+        var th_time = opts.sensT || 2 * 60 * 60 * 1000; //2 hours
+        for (var i = 0; i < events.length; i++) {
+            var ev = events[i];
+            if (!ev.isReal) {
+                var distance = helper.distance(ev.next.position, ev.prev.position);
+                var elapsed = ev.next.real_time - ev.prev.real_time;
+                if ((th_meters * ev.scale) <= distance) {
+                    if ((th_time) <= elapsed) {
+                        interpolate(ev, ev.prev, ev.next);
+                    }
+                }
+            }
+        };
+        return events;
+    }; // interpolate 
+
+    this.pp.reducer = function(opts, events) {
+        return events;
+    }; // interpolate 
+
+
+
+    return self;
+}
+
+KMLService.prototype.importGoogleLocation = function(opts, values, timeline) {
+    var self = this; //things are gonna get nasty
+    var events = [];
+    var lastIndex = 0;
+    var frames = timeline.frames;
+    var gevents = values.ret;
+    /*RAW IMPORT*/
+    var index = 0;
+    var ev = new GpsEvent({
+        position: new google.maps.LatLng(gevents[lastIndex].where.lat, gevents[lastIndex].where.lng),
+        start_frame: 0,
+        end_frame: 0,
+        start_time: frames[0].time,
+        end_time: frames[0].time + timeline.getMsStep(),
+        real_time: new Date(gevents[0].when).getTime(),
+        subtype: '__google'
+    });
+    ev.postProcessingInfo = [];
+    ev.scale = timeline.scale;
+    ev.index = index++;
+    events.push(ev);
+    lastIndex = 1;
+    var between = function(_date, _start, _end) {
+        return _date >= _start && _date <= _end;
+    }
+    for (var i = 1; i < frames.length; i++) { //cycle through all frames
+        var frameTime = frames[i].time;
+        var skipped = 0;
+        var skippedPoints = [];
+        for (var y = lastIndex; y < gevents.length; y++) {
+
+            var valTime = new Date(gevents[y].when).getTime();
+            if (valTime <= frameTime) {
+                skipped++;
+                skippedPoints.push(new google.maps.LatLng(gevents[y].where.lat, gevents[y].where.lng));
+            } else {
+                var dist = helper.distance(
+                    new google.maps.LatLng(gevents[lastIndex].where.lat, gevents[lastIndex].where.lng),
+                    new google.maps.LatLng(gevents[y].where.lat, gevents[y].where.lng)
+                ).toFixed(2);
+                lastIndex = y;
+                var real_time = new Date(gevents[lastIndex].when).getTime();
+                var included = between(real_time, frameTime, frameTime + timeline.getMsStep());
+                //found the first event after the frame. add an event with the info from the event before
+
+                var ev = new GpsEvent({
+                    position: new google.maps.LatLng(gevents[lastIndex].where.lat, gevents[lastIndex].where.lng),
+                    real_time: real_time,
+                    isReal: included,
+                    start_frame: i,
+                    end_frame: i,
+                    start_time: frameTime,
+                    end_time: frameTime + timeline.getMsStep(),
+                    subtype: '__google',
+                    distance: dist,
+                    speed: {
+                        ms: ((dist/60) / timeline.scale).toFixed(2),
+                        kmh: (3.6 * (dist/60) / timeline.scale).toFixed(1),
+                    },
+                    skipped: skippedPoints,
+                });
+                ev.postProcessingInfo = [];
+                ev.scale = timeline.scale;
+                ev.index = index++;
+                events.push(ev);
+                //console.info(i, '/', frames.length, ' skipped ', skipped, ' delta (', helper.deltaToString(ev.real_time - ev.end_time) ,')');
+                console.info(i, included, ev.isReal, helper.deltaToString(ev.real_time - ev.end_time) );
+                break;
+            }
+        }
+    }
+    if (opts.postProcessing) {
+        for (var i = 0; i < opts.postProcessing.length; i++) {
+            console.info(events.length, 'calling post processor', opts.postProcessing[i].opts.name);
+            events = opts.postProcessing[i].func(opts.postProcessing[i].opts, events);
+        };
+    }
+    return events;
+};
+
+},{"./GpsEvent.js":"C:\\workspaces\\github\\storify\\js\\src\\GpsEvent.js","./Helper.js":"C:\\workspaces\\github\\storify\\js\\src\\Helper.js"}],"C:\\workspaces\\github\\storify\\js\\src\\SGUI_EDIT.js":[function(require,module,exports){
+//SGUI
+var Timeline = require('./Timeline.js');
+var config = {};
+config.kmlimport = require('./gui/kmlImporter.js');
+config.kmltimeline = require('./gui/kmlTimeline.opt.js');
+config.phototimeline = require('./gui/photoTimeline.js');
+config.datetimeline = require('./gui/dateTimeline.js');
+
+
+module.exports = SGUI;
+
+function SGUI(app, opts) {
+    var self = this;
+    opts = opts || {};
+    if (!(this instanceof SGUI)) return new SGUI(app, opts);
+    this.app = app;
+    this.target = $('#target');
+    this.guis = {};
+    /*KML IMPORTER*/
+    var importerGUI = this.addGUI('kmlImporter',{classes: 'EDIT-GUI', config: config.kmlimport });
+    var myDropzone = new Dropzone("#drop_target", {
+       		url: "/uploadKML"
+	});
+	myDropzone.on("success", function(file, res) {
+		self.app.bus.publish('EVENT.GUI.KMLUPLOADED',res);
+	});
+	myDropzone.on("complete", function(file) {
+
+	});
+	myDropzone.on("uploadprogress", function(file, progress) {
+
+	});
+
+
+	/*KML TIMELINE*/
+    /*photo timeline*/
+    this.photoTimeline = new Timeline(app.story, config.phototimeline, function(that){
+		self.addGUI('photo-timeline-wrapper',{classes: 'VIEW-GUI', config: that.opts });
+		that.div = $('#photo-timeline-wrapper > div');
+	});
+    /*Calendar timeline*/
+    this.dateTimeline = new Timeline(app.story, config.datetimeline, function(that){
+		self.addGUI('date-timeline-wrapper',{classes: 'VIEW-GUI', config: that.opts });
+		that.div = $('#date-timeline-wrapper > div');
+	});
+    /*KML TIMELINE*/
+	this.kmlTimeline = new Timeline(app.story, config.kmltimeline, function(that){
+		self.addGUI('kml-timeline-wrapper',{classes: 'VIEW-GUI', config: that.opts });
+		that.div = $('#kml-timeline-wrapper > div');
+	});
+    
+  	/*GMAP*/
+  	var mapOptions = {
+        center: new google.maps.LatLng(41.54, 12.30),
+        disableDefaultUI: true,
+        zoom: 12,
+        mapTypeId: google.maps.MapTypeId.ROADMAP
+    };
+    this.map = new google.maps.Map(document.getElementById('map-canvas'),  mapOptions);
+    this.marker = new google.maps.Marker({
+        position:  this.map.getCenter(),
+        map: this.map
+    });
+
+
+    return self;
+}
+
+SGUI.prototype.printInfo = function() {
+	console.info(this.app);
+};
+
+
+SGUI.prototype.close = function(_id) {
+	if (this.guis[_id].modal){
+		this.guis[_id].dialog( "close" );
+	}else{
+		this.guis[_id].hide();
+	}
+};
+
+SGUI.prototype.addGUI = function(_id, opts) {
+	var width = opts.config.width || opts.width || "200";
+	var height = opts.config.height || opts.height || "200"
+	var $div = $("<div>", {id: _id, class: "GUI"});
+	this.target.append($div);
+	this.guis[_id] = $div;
+	$div.addClass(opts.classes || "gui");
+	if (opts.config.modal){
+		$div.modal = true;
+		$div.dialog({width:width, height:height});	
+	}
+	$div.append($(opts.config.div));
+	opts.config.init();
+
+	return $div;
+};
+},{"./Timeline.js":"C:\\workspaces\\github\\storify\\js\\src\\Timeline.js","./gui/dateTimeline.js":"C:\\workspaces\\github\\storify\\js\\src\\gui\\dateTimeline.js","./gui/kmlImporter.js":"C:\\workspaces\\github\\storify\\js\\src\\gui\\kmlImporter.js","./gui/kmlTimeline.opt.js":"C:\\workspaces\\github\\storify\\js\\src\\gui\\kmlTimeline.opt.js","./gui/photoTimeline.js":"C:\\workspaces\\github\\storify\\js\\src\\gui\\photoTimeline.js"}],"C:\\workspaces\\github\\storify\\js\\src\\SStory.js":[function(require,module,exports){
+//SStory
+
+var helper = require('./helper.js')();
+
+module.exports = SStory;
+
+function SStory(app, opts) {
+    var self = this;
+    this.opts = helper.extend({}, opts);
+    if (!(this instanceof SStory)) return new SStory(app, opts);
+    this.app = app;
+    this.startTime = opts.startTime || new Date().getTime();
+    this.endTime = opts.endTime || new Date().getTime();
+	this.title = this.opts.title || 'untitled story';
+	this.description = this.opts.description || 'new story to be filled';
+	this.createdOn = this.opts.createdOn || helper.dateToString(new Date());
+    this.importKmlEvents = function(data) {  
+        var kmlEvents = [];
+        var changeDate = false;
+        if (new Date(data[0].when).getTime()<self.startTime) {        
+            self.startTime = new Date(data[0].when).getTime();
+            console.info('Start moved to ' + new Date(self.startTime));
+            changeDate = true;
+        }
+        if (new Date(data[data.length-1].when).getTime()>self.endTime) {
+            self.endTime = new Date(data[data.length-1].when).getTime();
+            console.info('End moved to ' + new Date(self.endTime));
+            changeDate = true;
+        }
+        if(changeDate ){
+            self.app.bus.publish('EVENT.STORY.REFRESH.DATE');
+        }
+        //for (var i = 0 ; i < data.length; i++) {
+        //    var startTime = new Date(data[i].when).getTime();
+        //    kmlEvents.push({type: 'kml', when: startTime, where: data[i].where});
+        //};
+        //self.app.bus.publish('EVENT.STORY.REFRESH.KML',{events: kmlEvents});
+    };
+    return self;
+}
+
+/*SStory.prototype.getEvents = function(type) {
+    function hasType(_event) {
+        return _event.type === type;
+    }
+    return this.events.filter(hasType);
+};
+*/
+SStory.prototype.parseKML = function(content, callback) {
+	xml2js.parseString(content, function(err, result) {
+    	if (err) {
+            callback(err, null);
+        }
+        var when = result.kml.Document[0].Placemark[0]['gx:Track'][0].when;
+        var where = result.kml.Document[0].Placemark[0]['gx:Track'][0]['gx:coord'];
+        /**
+        * start : DATE
+        * end : DATE
+        * points : []
+        */
+        var obj = {};
+        obj.ret = [];
+        obj.start = new Date(when[0]);
+        obj.end = new Date(when[when.length - 1]);		
+		for (var ii = 0; ii < when.length; ii++) {
+        	var event = {
+               'when': new Date(when[ii]),
+               'where': {
+                    lng: where[ii].split(' ')[0],
+                    lat: where[ii].split(' ')[1]
+                }
+            };
+            obj.ret.push(event);
+        }
+        callback(null, obj);
+	});
+};
+
+},{"./helper.js":"C:\\workspaces\\github\\storify\\js\\src\\helper.js"}],"C:\\workspaces\\github\\storify\\js\\src\\Timeline.js":[function(require,module,exports){
+var Frame = require('./Frame.js');
+var helper = require('./storify/Helper.js')();
+
+module.exports = Timeline;
+
+function Timeline(story, opts, cb) {
+    var self = this;
+    if (!(this instanceof Timeline)) return new Timeline(story, opts,cb);
+    this.story = story;
+    this.opts = opts;
+    this.scale = opts.scale || 10; // delta minutes between frames
+    this.frames = opts.frames || [];
+    this.start = opts.start || new Date().getTime(); // ms
+    this.end = opts.end || new Date().getTime(); // ms
+    this.events = opts.events || [];
+    if (cb){
+        cb(this);
+    }
+    this.initialize = function() {
+        self.start  = self.story.startTime;
+        self.end  = self.story.endTime;
+        var startMs = self.start;
+        var endMs = self.end;
+        var diffMs = endMs - startMs;
+        var diffm = diffMs / 1000 / 60;
+        var diffh = diffm / 60;
+        var diffd = diffh / 24;
+        self.steps = (diffm / self.scale).toFixed(0);
+        for (var i = 0; i < self.steps; i++) {
+            var frame = new Frame({
+                index: i,
+                time: startMs + (i * 1000 * 60 * self.scale),
+                events: [] //cache is initialized 
+            });
+            self.frames.push(frame);
+        }
+        //console.info('Timeline initialized', this.start,this.end, ' steps: ',this.steps);
+        //console.info(self);
+    };        
+    this.getMsStep = function() {
+        return self.scale * 60 * 1000;
+    };
+    this.getPercAtFrame = function(_f, _precision) {
+        var precision = _precision || 0;
+        var frameIndex = Math.max(0, Math.min(_f, self.steps - 1));
+        var offset = ((frameIndex / (self.steps - 1)) * (100)).toFixed(precision);
+        return offset;
+    };
+    this.getFrameAtPerc = function(_p) {
+        var percentage = Math.max(0, Math.min(_p, 100));
+        var offset = ((percentage / 100) * (self.steps - 1)).toFixed(0);
+        return self.frames[offset];
+    };
+    this.getPercAtTime = function(_p, _precision) {
+        var precision = _precision || 0;
+        var deltaTot = self.end - self.start;
+        var time = _p - self.start;
+        var x = ((time * 100)/deltaTot).toFixed(precision);
+        return x;
+    };
+    this.getFrameAtTime = function(_p) {
+        return self.getFrameAtPerc(self.getPercAtTime(_p));
+    };
+
+    this.extend = function(newstart, newend) {
+        //console.info(self.frames, helper.shallowCopy(self.frames));
+        var frameCopy = helper.shallowCopy(self.frames);
+        self.start = newstart;
+        self.end = newend;
+        self.frames = [];
+        for (var i = self.events.length - 1; i >= 0; i--) {
+            if (self.events[i].subtype && self.events[i].subtype === '__auto') {
+                self.events = self.events.splice(i, 1); //index, howmany
+            }
+        };
+        self.initialize();
+    };
+
+    this.addEvents = function(events) {
+        for (var i = events.length - 1; i >= 0; i--) {
+            var ev = events[i];
+            self.addEvent(ev);
+        };    
+    };
+
+
+    this.addEvent = function(event) {
+        self.events.push(event);
+        for (var i = event.start_frame; i <= event.end_frame; i++) {
+            self.frames[i].events.push(event); //cache
+            console.info('event added at frame ' + i);
+        };
+
+    };
+    return this;
+}
+
+
+
+},{"./Frame.js":"C:\\workspaces\\github\\storify\\js\\src\\Frame.js","./storify/Helper.js":"C:\\workspaces\\github\\storify\\js\\src\\storify\\Helper.js"}],"C:\\workspaces\\github\\storify\\js\\src\\gui\\dateTimeline.js":[function(require,module,exports){
+module.exports  = {
+	width: $(document).width(),
+	height : 200,
+	div: '<div class="timeline"><span>DATE</span></div>',
+	init: function() {
+
+	},
+	addEvents: function(){}
+};
+},{}],"C:\\workspaces\\github\\storify\\js\\src\\gui\\kmlImporter.js":[function(require,module,exports){
+module.exports = {
+	modal: true,
+	width: 800,
+	height : 200,
+	div: '<input type="text" id="__start"></input> <input type="text" id="__end"></input> <input type="button" id="__button" value="Import"></input><div id="drop_target">&nbsp;</div>',
+	init: function() {
+		$( "#__start" ).datepicker({ 
+			showOtherMonths: true,
+      		selectOtherMonths: true});
+		$( "#__end" ).datepicker({ 
+			showOtherMonths: true,
+      		selectOtherMonths: true});
+		$( "#__button" ).click(function(){
+			var url = "https://maps.google.com/locationhistory/b/0/kml?startTime="+ new Date($( "#__start" ).val()).getTime()+"&endTime="+ new Date($( "#__end" ).val()).getTime();
+			window.open(url,'_blank');
+		});		
+	}
+};
+},{}],"C:\\workspaces\\github\\storify\\js\\src\\gui\\kmlTimeline.opt.js":[function(require,module,exports){
+module.exports  = {
+	width: $(document).width(),
+	height : 200,
+	div: '<div class="timeline"><span>KML</span></div>',
+	init: function(wrapper) {
+
+	},
+	addEvents: function(){}
+};
+},{}],"C:\\workspaces\\github\\storify\\js\\src\\gui\\photoTimeline.js":[function(require,module,exports){
+module.exports  = {
+	width: $(document).width(),
+	height : 200,
+	div: '<div class="timeline"><span>PHOTO</span></div>',
+	init: function(wrapper) {
+
+	},
+	addEvents: function(){}
+};
+},{}],"C:\\workspaces\\github\\storify\\js\\src\\helper.js":[function(require,module,exports){
+module.exports=require("C:\\workspaces\\github\\storify\\js\\src\\Helper.js")
+},{"C:\\workspaces\\github\\storify\\js\\src\\Helper.js":"C:\\workspaces\\github\\storify\\js\\src\\Helper.js"}],"C:\\workspaces\\github\\storify\\js\\src\\storify\\Helper.js":[function(require,module,exports){
 module.exports = Helper;
 
 function Helper() {
@@ -692,7 +941,7 @@ var test = require('./src/test');
 var SGUI = require('./src/SGUI_EDIT');
 var SStory = require('./src/SStory');
 var EventBus = require('./src/EventBus');
-
+var KMLImporterBackend = require('./src/KMLService');
 
 function S(opts) {
     var self = this;
@@ -700,37 +949,73 @@ function S(opts) {
     if (!(this instanceof S)) return new S(opts);
    	this.bus = new EventBus(this,{});
     //this.datgui = new dat.GUI();
-    this.sgui = new SGUI(this,{});
+    
     this.story = new SStory(this, {
     	startTime : new Date().getTime(),
     	endTime : new Date("1/1/1900").getTime()}
 	);
-
-    this.subscribe = function(event, fn) {
-        self.bus.subscribe(event, fn);
+    this.sgui = new SGUI(this,{});
+    this.subscribe = function(obj, event, fn) {
+        self.bus.subscribe(obj, event, fn);
     };
-    this.unsubscribe = function(event, fn) {
+    this.unsubscribe = function(obj, event, fn) {
         self.bus.unsubscribe(event, fn);
     };
     this.publish = function(event, params) {
         self.bus.publish(event, params);
     };
-    this.subscribe('EVENT.GUI.KMLUPLOADED',function(event,params){
+
+    /*APPLICATION CONFIGURATION
+        subscribe to the events
+        keep all subscribe here
+    */
+    this.subscribe(self,'EVENT.GUI.KMLUPLOADED',function(params){
+        var importer = new KMLImporterBackend(self);
         self.story.importKmlEvents(params.ret);
+        var _events = importer.importGoogleLocation({
+            postProcessing: [{
+                func: importer.pp.fixNeighbours,
+                opts: {
+                    name: 'fixNeighbours'
+                }
+            }, 
+           {
+                func: importer.pp.interpolator,
+                opts: {
+                    name: 'interpolator',
+                    sensXY: 1000, //m
+                    sensT: 6 * 60 * 1000 // 6 min
+                }
+            }, 
+            {
+                func: importer.pp.reducer,
+                opts: {
+                    name: 'reducer',
+                    sensXY: 100, //m if two events are one next to each other, merge them
+                }
+            ,
+            }]
+        }, params, self.sgui.kmlTimeline); //timeline is needed to get infos about frame, scale etc.etc.
         self.sgui.close('kmlImporter');
+        self.publish('EVENT.STORY.REFRESH.KML',{events: _events});
     });
-    this.subscribe('EVENT.STORY.REFRESH.PHOTO',function(event,params){
+
+
+    this.subscribe(self,'EVENT.STORY.REFRESH.PHOTO',function(params){
+
                  
     });
-    this.subscribe('EVENT.STORY.REFRESH.KML',function(event,params){
-        /*
+
+    /**/
+    this.subscribe(self,'EVENT.STORY.REFRESH.KML',function(params){       
         console.info(event,params);
         var events = params.events;
         if (params.clear)
             self.sgui.kmlTimeline.clearEvents();
         self.sgui.kmlTimeline.addEvents(events);
-        */
-
+        console.info(self.sgui.kmlTimeline);
+        
+        /*
         var leftoff = 100;
         var $tline = self.sgui.kmlTimeline.div;  //$('#kml-timeline-wrapper > div');
         var delta = self.story.endTime - self.story.startTime;
@@ -755,11 +1040,13 @@ function S(opts) {
                 self.bus.publish("EVENT.GUI.TIMELINE.CLICK",events);
             });
             $tline.append($div);
+
         };
+        */
                         
     });
-    this.subscribe('EVENT.STORY.REFRESH.DATE',function(event,params){
-        
+    this.subscribe(self,'EVENT.STORY.REFRESH.DATE',function(event,params){
+        self.sgui.kmlTimeline.initialize();
     });    
 
 }
@@ -780,7 +1067,7 @@ $(document).ready(function() {
 
 
 
-},{"./src/EventBus":"C:\\workspaces\\github\\storify\\js\\src\\EventBus.js","./src/SGUI_EDIT":"C:\\workspaces\\github\\storify\\js\\src\\SGUI_EDIT.js","./src/SStory":"C:\\workspaces\\github\\storify\\js\\src\\SStory.js","./src/test":"C:\\workspaces\\github\\storify\\js\\src\\test.js"}],"C:\\workspaces\\github\\storify\\node_modules\\inherits\\inherits_browser.js":[function(require,module,exports){
+},{"./src/EventBus":"C:\\workspaces\\github\\storify\\js\\src\\EventBus.js","./src/KMLService":"C:\\workspaces\\github\\storify\\js\\src\\KMLService.js","./src/SGUI_EDIT":"C:\\workspaces\\github\\storify\\js\\src\\SGUI_EDIT.js","./src/SStory":"C:\\workspaces\\github\\storify\\js\\src\\SStory.js","./src/test":"C:\\workspaces\\github\\storify\\js\\src\\test.js"}],"C:\\workspaces\\github\\storify\\node_modules\\inherits\\inherits_browser.js":[function(require,module,exports){
 if (typeof Object.create === 'function') {
   // implementation from standard node.js 'util' module
   module.exports = function inherits(ctor, superCtor) {

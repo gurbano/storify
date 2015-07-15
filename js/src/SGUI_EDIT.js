@@ -34,17 +34,17 @@ function SGUI(app, opts) {
 
 	/*KML TIMELINE*/
     /*photo timeline*/
-    this.photoTimeline = new Timeline(config.phototimeline, function(that){
+    this.photoTimeline = new Timeline(app.story, config.phototimeline, function(that){
 		self.addGUI('photo-timeline-wrapper',{classes: 'VIEW-GUI', config: that.opts });
 		that.div = $('#photo-timeline-wrapper > div');
 	});
     /*Calendar timeline*/
-    this.dateTimeline = new Timeline(config.datetimeline, function(that){
+    this.dateTimeline = new Timeline(app.story, config.datetimeline, function(that){
 		self.addGUI('date-timeline-wrapper',{classes: 'VIEW-GUI', config: that.opts });
 		that.div = $('#date-timeline-wrapper > div');
 	});
     /*KML TIMELINE*/
-	this.kmlTimeline = new Timeline(config.kmltimeline, function(that){
+	this.kmlTimeline = new Timeline(app.story, config.kmltimeline, function(that){
 		self.addGUI('kml-timeline-wrapper',{classes: 'VIEW-GUI', config: that.opts });
 		that.div = $('#kml-timeline-wrapper > div');
 	});

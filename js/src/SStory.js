@@ -14,37 +14,38 @@ function SStory(app, opts) {
 	this.title = this.opts.title || 'untitled story';
 	this.description = this.opts.description || 'new story to be filled';
 	this.createdOn = this.opts.createdOn || helper.dateToString(new Date());
-	this.events = [];
     this.importKmlEvents = function(data) {  
         var kmlEvents = [];
+        var changeDate = false;
         if (new Date(data[0].when).getTime()<self.startTime) {        
             self.startTime = new Date(data[0].when).getTime();
             console.info('Start moved to ' + new Date(self.startTime));
-            self.app.bus.publish('EVENT.STORY.REFRESH.DATE');
+            changeDate = true;
         }
         if (new Date(data[data.length-1].when).getTime()>self.endTime) {
             self.endTime = new Date(data[data.length-1].when).getTime();
             console.info('End moved to ' + new Date(self.endTime));
+            changeDate = true;
+        }
+        if(changeDate ){
             self.app.bus.publish('EVENT.STORY.REFRESH.DATE');
         }
-        for (var i = 0 ; i < data.length; i++) {
-            var startTime = new Date(data[i].when).getTime();
-            kmlEvents.push({type: 'kml', when: startTime, where: data[i].where , delta: startTime - self.startTime });
-            self.events.push({type: 'kml', when: startTime, where: data[i].where , delta: startTime - self.startTime });
-        };
-        self.app.bus.publish('EVENT.STORY.REFRESH.KML',{events: kmlEvents});
+        //for (var i = 0 ; i < data.length; i++) {
+        //    var startTime = new Date(data[i].when).getTime();
+        //    kmlEvents.push({type: 'kml', when: startTime, where: data[i].where});
+        //};
+        //self.app.bus.publish('EVENT.STORY.REFRESH.KML',{events: kmlEvents});
     };
     return self;
 }
 
-
-SStory.prototype.getEvents = function(type) {
+/*SStory.prototype.getEvents = function(type) {
     function hasType(_event) {
         return _event.type === type;
     }
     return this.events.filter(hasType);
 };
-
+*/
 SStory.prototype.parseKML = function(content, callback) {
 	xml2js.parseString(content, function(err, result) {
     	if (err) {
