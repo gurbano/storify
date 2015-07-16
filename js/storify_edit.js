@@ -3,6 +3,8 @@ var SGUI = require('./src/SGUI_EDIT');
 var SStory = require('./src/SStory');
 var EventBus = require('./src/EventBus');
 var KMLImporterBackend = require('./src/KMLService');
+var GpsEvent = require('./src/GpsEvent.js');
+var EventType = require('./src/EventType.js');
 
 function S(opts) {
     var self = this;
@@ -69,46 +71,75 @@ function S(opts) {
 
     /**/
     this.subscribe(self,'EVENT.STORY.REFRESH.KML',function(params){       
-        console.info(event,params);
         var events = params.events;
+        var that = self.sgui.kmlTimeline;
+        /*CLEAR*/
         if (params.clear)
-            self.sgui.kmlTimeline.clearEvents();
-        self.sgui.kmlTimeline.addEvents(events);
-        console.info(self.sgui.kmlTimeline);
+            that.clearEvents();
+        that.addEvents(events); //add the events to the timeline object
         
-        /*
+        /*RENDER GPS EVENTS JUST ADDED*/
         var leftoff = 100;
-        var $tline = self.sgui.kmlTimeline.div;  //$('#kml-timeline-wrapper > div');
-        var delta = self.story.endTime - self.story.startTime;
-        var width = $tline.width() - leftoff;
-        var events = self.story.getEvents('kml');
-        for (var i = 0; i <= events.length - 1; i++) {
-            var offset = events[i].delta/delta;
+        for (var i = that.frames.length - 1; i >= 0; i--) {
+            var tmpFrame = that.frames[i];
+            var width = that.div.width() - leftoff;
+            var height = that.div.height();
+            var offset = i/that.frames.length;
             var offsetPx = Math.floor(offset * width) + leftoff;
-            //console.info(i,offset, offsetPx);
-            var $div = $("<div>", {id: events[i].delta,  class: "kml-timeline-event"});
-            $div.attr('index',i);
-            $div.css('left',  offsetPx +'px');
-            $div.ev = events[i];
-            $div.hover( function(){
-                var events = self.story.events[$(this).attr('index')];
-                self.bus.publish("EVENT.GUI.TIMELINE.HOVER",events);
-            }, function(){
-
-            } );
-            $div.click( function(){
-                var events = self.story.events[$(this).attr('index')];
-                self.bus.publish("EVENT.GUI.TIMELINE.CLICK",events);
-            });
-            $tline.append($div);
-
+            for (var ii = tmpFrame.events.length - 1; ii >= 0; ii--) {
+                var ev = tmpFrame.events[ii];
+                if (ev instanceof GpsEvent) {                    
+                    var $div = $("<div>", {id: ev.delta,  class: "kml-timeline-event"});
+                    $div.attr('index',i);
+                    $div.css('left',  offsetPx +'px');
+                    $div.css('height',  (50 + ev.speed.kmh*2) +'%');
+                    $div.ev = ev;
+                    $div.hover(function(event){
+                        var offset = event.clientX;
+                        var perc = (offset * 100 / that.div.width()).toFixed(2);
+                        var frame = that.getFrameAtPerc(perc);
+                        self.bus.publish('EVENT.GUI.TIMELINE.HOVER',{
+                            timeline: that,
+                            perc : perc,
+                            offset: offset,
+                            frame: frame});
+                    });
+                    that.div.append($div);                    
+                };
+            };
         };
-        */
+
+        /*BIND CLICK EVENT*/
+        that.div.click(function(event){
+            var offset = event.clientX;
+            var perc = (offset * 100 / that.div.width()).toFixed(2);
+            var frame = that.getFrameAtPerc(perc);
+            self.bus.publish('EVENT.GUI.TIMELINE.CLICK',{
+                timeline: that,
+                perc : perc,
+                offset: offset,
+                frame: frame});
+        });
+        
+
+        
+       
                         
     });
-    this.subscribe(self,'EVENT.STORY.REFRESH.DATE',function(event,params){
+    this.subscribe(self,'EVENT.STORY.REFRESH.DATE',function(params){
         self.sgui.kmlTimeline.initialize();
-    });    
+    });   
+     this.subscribe(self,'EVENT.GUI.TIMELINE.HOVER',function(params){
+        var frame = params.frame;
+        if (frame.events && frame.events.length>=1){
+            var ev = frame.events[0];
+            if (ev instanceof GpsEvent) {
+                self.sgui.map.setCenter( new google.maps.LatLng(ev.position.lat(), ev.position.lng()));
+                self.sgui.marker.setPosition(self.sgui.map.getCenter());
+            }
+        }
+        console.info(frame);
+    });     
 
 }
 

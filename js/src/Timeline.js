@@ -61,7 +61,6 @@ function Timeline(story, opts, cb) {
     this.getFrameAtTime = function(_p) {
         return self.getFrameAtPerc(self.getPercAtTime(_p));
     };
-
     this.extend = function(newstart, newend) {
         //console.info(self.frames, helper.shallowCopy(self.frames));
         var frameCopy = helper.shallowCopy(self.frames);
@@ -88,7 +87,6 @@ function Timeline(story, opts, cb) {
         self.events.push(event);
         for (var i = event.start_frame; i <= event.end_frame; i++) {
             self.frames[i].events.push(event); //cache
-            console.info('event added at frame ' + i);
         };
 
     };
