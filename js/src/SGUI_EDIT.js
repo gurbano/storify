@@ -38,16 +38,52 @@ function SGUI(app, opts) {
 		self.addGUI('photo-timeline-wrapper',{classes: 'VIEW-GUI', config: that.opts });
 		that.div = $('#photo-timeline-wrapper > div');
 	});
-    /*Calendar timeline*/
-    this.dateTimeline = new Timeline(app.story, config.datetimeline, function(that){
-		self.addGUI('date-timeline-wrapper',{classes: 'VIEW-GUI', config: that.opts });
-		that.div = $('#date-timeline-wrapper > div');
-	});
-    /*KML TIMELINE*/
+	/*KML TIMELINE*/
 	this.kmlTimeline = new Timeline(app.story, config.kmltimeline, function(that){
 		self.addGUI('kml-timeline-wrapper',{classes: 'VIEW-GUI', config: that.opts });
 		that.div = $('#kml-timeline-wrapper > div');
 	});
+    /*Calendar timeline*/
+    this.dateTimeline = new Timeline(app.story, config.datetimeline, function(that){
+		self.addGUI('date-timeline-wrapper',{classes: 'VIEW-GUI', config: that.opts });
+		that.div = $('#date-timeline-wrapper > div');
+		that.$dragger = $($('<div class="draggable"></div>'));
+    	that.div.append(that.$dragger);    
+    	that.$dragger.getMaxPx = function() {
+	        return (that.div.width() - that.$dragger.width());
+	    };
+	    that.$dragger.getPosition = function() {
+	        return (100 * (that.$dragger[0].offsetLeft / that.$dragger.getMaxPx()).toFixed(10));
+	    };
+	    that.$dragger.setPosition = function(percentage) {
+	        var offset = (percentage / 100) * that.$dragger.getMaxPx();
+	        that.$dragger.css('left', offset);
+	    };
+	    that.$dragger.refresh = function() {
+	        var index = that.current;
+	        that.$dragger.setPosition(that.getPercAtFrame(that.current, 10)); //In case the frame is changed,update position
+	    };
+	    that.$dragger.draggable({
+	        containment: "parent",
+	        drag: function(event) {
+	            var frame =  self.kmlTimeline.getFrameAtPerc(that.$dragger.getPosition());
+	            if (frame){
+	            	that.current = frame.index;
+	            	self.app.bus.publish('EVENT.GUI.NAVIGATETO.KMLFRAME',{
+	            		index: frame.index,
+	            		frame: frame
+	            	});
+	            }
+	        },
+	        stop: function() {
+	        	var frame =  self.kmlTimeline.getFrameAtPerc(that.$dragger.getPosition());
+	        	if (frame){
+		            that.current = frame.index;
+	            }
+	        }
+	    });
+	});
+    
     
   	/*GMAP*/
   	var mapOptions = {
@@ -57,6 +93,13 @@ function SGUI(app, opts) {
         mapTypeId: google.maps.MapTypeId.ROADMAP
     };
     this.map = new google.maps.Map(document.getElementById('map-canvas'),  mapOptions);
+
+    this.poly = new google.maps.Polyline({
+	    strokeColor: '#000000',
+	    strokeOpacity: 1.0,
+	    strokeWeight: 3
+  	});
+  	this.poly.setMap(this.map);
     this.marker = new google.maps.Marker({
         position:  this.map.getCenter(),
         map: this.map
