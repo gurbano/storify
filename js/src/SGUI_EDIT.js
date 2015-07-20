@@ -5,6 +5,7 @@ config.kmlimport = require('./gui/kmlImporter.js');
 config.kmltimeline = require('./gui/kmlTimeline.opt.js');
 config.phototimeline = require('./gui/photoTimeline.js');
 config.datetimeline = require('./gui/dateTimeline.js');
+var helper = require('./helper.js')();
 
 
 module.exports = SGUI;
@@ -16,6 +17,7 @@ function SGUI(app, opts) {
     this.app = app;
     this.target = $('#target');
     this.guis = {};
+    this.current = 0; //Current frame selected
     /*KML IMPORTER*/
     var importerGUI = this.addGUI('kmlImporter',{classes: 'EDIT-GUI', config: config.kmlimport });
     var myDropzone = new Dropzone("#drop_target", {
@@ -30,7 +32,26 @@ function SGUI(app, opts) {
 	myDropzone.on("uploadprogress", function(file, progress) {
 
 	});
-
+	this.initializeTimelines = function(){
+		this.photoTimeline.initialize();
+		this.kmlTimeline.initialize();
+		this.dateTimeline.initialize();
+	};
+	this.nextFrame = function(){
+		self.current++;
+		self.app.bus.publish('EVENT.GUI.NAVIGATETO.FRAME',{
+	        index: self.current
+	    });
+	    self.dateTimeline.refresh();
+	    
+	}
+	this.prevFrame = function(){
+		if (self.current>0)self.current--;
+		self.app.bus.publish('EVENT.GUI.NAVIGATETO.FRAME',{
+	    	index: self.current
+	    });
+	    self.dateTimeline.refresh();
+	}
 
 	/*KML TIMELINE*/
     /*photo timeline*/
@@ -48,7 +69,24 @@ function SGUI(app, opts) {
 		self.addGUI('date-timeline-wrapper',{classes: 'VIEW-GUI', config: that.opts });
 		that.div = $('#date-timeline-wrapper > div');
 		that.$dragger = $($('<div class="draggable"></div>'));
-    	that.div.append(that.$dragger);    
+		that.$dateSpan = $('<span id="date-timeline-date" class="date">1 gennaio 2015</span>');
+		that.$dragger.append(that.$dateSpan);
+    	that.div.append(that.$dragger); 
+    	that.setDate = function(ms){
+    		that.$dateSpan.html(helper.msToString(ms));
+    	}
+    	that.goTo = function(index){
+    		var frame =  self.dateTimeline.getFrameAtIndex(index);
+	        if (frame){
+	          	self.current = frame.index;
+	           	self.app.bus.publish('EVENT.GUI.NAVIGATETO.FRAME',{
+	           		index: self.current
+	           	});
+	           }	   
+    	}
+    	that.refresh = function(){
+    		that.$dragger.refresh();
+    	}
     	that.$dragger.getMaxPx = function() {
 	        return (that.div.width() - that.$dragger.width());
 	    };
@@ -60,26 +98,28 @@ function SGUI(app, opts) {
 	        that.$dragger.css('left', offset);
 	    };
 	    that.$dragger.refresh = function() {
-	        var index = that.current;
-	        that.$dragger.setPosition(that.getPercAtFrame(that.current, 10)); //In case the frame is changed,update position
+	        var index = self.current;
+	        that.$dragger.setPosition(that.getPercAtFrame(index, 10)); //In case the frame is changed,update position
 	    };
 	    that.$dragger.draggable({
 	        containment: "parent",
 	        drag: function(event) {
-	            var frame =  self.kmlTimeline.getFrameAtPerc(that.$dragger.getPosition());
+	            var frame =  self.dateTimeline.getFrameAtPerc(that.$dragger.getPosition());
 	            if (frame){
-	            	that.current = frame.index;
-	            	self.app.bus.publish('EVENT.GUI.NAVIGATETO.KMLFRAME',{
-	            		index: frame.index,
-	            		frame: frame
+	            	self.current = frame.index;
+	            	self.app.bus.publish('EVENT.GUI.NAVIGATETO.FRAME',{
+	            		index: self.current
 	            	});
-	            }
+	            }	            
 	        },
 	        stop: function() {
-	        	var frame =  self.kmlTimeline.getFrameAtPerc(that.$dragger.getPosition());
+	        	var frame =  self.dateTimeline.getFrameAtPerc(that.$dragger.getPosition());
 	        	if (frame){
-		            that.current = frame.index;
-	            }
+		            self.current = frame.index;
+		            self.app.bus.publish('EVENT.GUI.NAVIGATETO.FRAME',{
+	            		index: self.current
+	            	});
+	            }	            
 	        }
 	    });
 	});
@@ -95,11 +135,14 @@ function SGUI(app, opts) {
     this.map = new google.maps.Map(document.getElementById('map-canvas'),  mapOptions);
 
     this.poly = new google.maps.Polyline({
-	    strokeColor: '#000000',
-	    strokeOpacity: 1.0,
-	    strokeWeight: 3
+	    strokeColor: '#457363',
+	    strokeOpacity: 0.4,
+	    strokeWeight: 6
   	});
   	this.poly.setMap(this.map);
+
+
+
     this.marker = new google.maps.Marker({
         position:  this.map.getCenter(),
         map: this.map

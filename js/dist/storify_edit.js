@@ -467,6 +467,7 @@ config.kmlimport = require('./gui/kmlImporter.js');
 config.kmltimeline = require('./gui/kmlTimeline.opt.js');
 config.phototimeline = require('./gui/photoTimeline.js');
 config.datetimeline = require('./gui/dateTimeline.js');
+var helper = require('./helper.js')();
 
 
 module.exports = SGUI;
@@ -478,6 +479,7 @@ function SGUI(app, opts) {
     this.app = app;
     this.target = $('#target');
     this.guis = {};
+    this.current = 0; //Current frame selected
     /*KML IMPORTER*/
     var importerGUI = this.addGUI('kmlImporter',{classes: 'EDIT-GUI', config: config.kmlimport });
     var myDropzone = new Dropzone("#drop_target", {
@@ -492,7 +494,26 @@ function SGUI(app, opts) {
 	myDropzone.on("uploadprogress", function(file, progress) {
 
 	});
-
+	this.initializeTimelines = function(){
+		this.photoTimeline.initialize();
+		this.kmlTimeline.initialize();
+		this.dateTimeline.initialize();
+	};
+	this.nextFrame = function(){
+		self.current++;
+		self.app.bus.publish('EVENT.GUI.NAVIGATETO.FRAME',{
+	        index: self.current
+	    });
+	    self.dateTimeline.refresh();
+	    
+	}
+	this.prevFrame = function(){
+		if (self.current>0)self.current--;
+		self.app.bus.publish('EVENT.GUI.NAVIGATETO.FRAME',{
+	    	index: self.current
+	    });
+	    self.dateTimeline.refresh();
+	}
 
 	/*KML TIMELINE*/
     /*photo timeline*/
@@ -510,7 +531,24 @@ function SGUI(app, opts) {
 		self.addGUI('date-timeline-wrapper',{classes: 'VIEW-GUI', config: that.opts });
 		that.div = $('#date-timeline-wrapper > div');
 		that.$dragger = $($('<div class="draggable"></div>'));
-    	that.div.append(that.$dragger);    
+		that.$dateSpan = $('<span id="date-timeline-date" class="date">1 gennaio 2015</span>');
+		that.$dragger.append(that.$dateSpan);
+    	that.div.append(that.$dragger); 
+    	that.setDate = function(ms){
+    		that.$dateSpan.html(helper.msToString(ms));
+    	}
+    	that.goTo = function(index){
+    		var frame =  self.dateTimeline.getFrameAtIndex(index);
+	        if (frame){
+	          	self.current = frame.index;
+	           	self.app.bus.publish('EVENT.GUI.NAVIGATETO.FRAME',{
+	           		index: self.current
+	           	});
+	           }	   
+    	}
+    	that.refresh = function(){
+    		that.$dragger.refresh();
+    	}
     	that.$dragger.getMaxPx = function() {
 	        return (that.div.width() - that.$dragger.width());
 	    };
@@ -522,26 +560,28 @@ function SGUI(app, opts) {
 	        that.$dragger.css('left', offset);
 	    };
 	    that.$dragger.refresh = function() {
-	        var index = that.current;
-	        that.$dragger.setPosition(that.getPercAtFrame(that.current, 10)); //In case the frame is changed,update position
+	        var index = self.current;
+	        that.$dragger.setPosition(that.getPercAtFrame(index, 10)); //In case the frame is changed,update position
 	    };
 	    that.$dragger.draggable({
 	        containment: "parent",
 	        drag: function(event) {
-	            var frame =  self.kmlTimeline.getFrameAtPerc(that.$dragger.getPosition());
+	            var frame =  self.dateTimeline.getFrameAtPerc(that.$dragger.getPosition());
 	            if (frame){
-	            	that.current = frame.index;
-	            	self.app.bus.publish('EVENT.GUI.NAVIGATETO.KMLFRAME',{
-	            		index: frame.index,
-	            		frame: frame
+	            	self.current = frame.index;
+	            	self.app.bus.publish('EVENT.GUI.NAVIGATETO.FRAME',{
+	            		index: self.current
 	            	});
-	            }
+	            }	            
 	        },
 	        stop: function() {
-	        	var frame =  self.kmlTimeline.getFrameAtPerc(that.$dragger.getPosition());
+	        	var frame =  self.dateTimeline.getFrameAtPerc(that.$dragger.getPosition());
 	        	if (frame){
-		            that.current = frame.index;
-	            }
+		            self.current = frame.index;
+		            self.app.bus.publish('EVENT.GUI.NAVIGATETO.FRAME',{
+	            		index: self.current
+	            	});
+	            }	            
 	        }
 	    });
 	});
@@ -557,11 +597,14 @@ function SGUI(app, opts) {
     this.map = new google.maps.Map(document.getElementById('map-canvas'),  mapOptions);
 
     this.poly = new google.maps.Polyline({
-	    strokeColor: '#000000',
-	    strokeOpacity: 1.0,
-	    strokeWeight: 3
+	    strokeColor: '#457363',
+	    strokeOpacity: 0.4,
+	    strokeWeight: 6
   	});
   	this.poly.setMap(this.map);
+
+
+
     this.marker = new google.maps.Marker({
         position:  this.map.getCenter(),
         map: this.map
@@ -600,7 +643,7 @@ SGUI.prototype.addGUI = function(_id, opts) {
 
 	return $div;
 };
-},{"./Timeline.js":"C:\\workspaces\\github\\storify\\js\\src\\Timeline.js","./gui/dateTimeline.js":"C:\\workspaces\\github\\storify\\js\\src\\gui\\dateTimeline.js","./gui/kmlImporter.js":"C:\\workspaces\\github\\storify\\js\\src\\gui\\kmlImporter.js","./gui/kmlTimeline.opt.js":"C:\\workspaces\\github\\storify\\js\\src\\gui\\kmlTimeline.opt.js","./gui/photoTimeline.js":"C:\\workspaces\\github\\storify\\js\\src\\gui\\photoTimeline.js"}],"C:\\workspaces\\github\\storify\\js\\src\\SStory.js":[function(require,module,exports){
+},{"./Timeline.js":"C:\\workspaces\\github\\storify\\js\\src\\Timeline.js","./gui/dateTimeline.js":"C:\\workspaces\\github\\storify\\js\\src\\gui\\dateTimeline.js","./gui/kmlImporter.js":"C:\\workspaces\\github\\storify\\js\\src\\gui\\kmlImporter.js","./gui/kmlTimeline.opt.js":"C:\\workspaces\\github\\storify\\js\\src\\gui\\kmlTimeline.opt.js","./gui/photoTimeline.js":"C:\\workspaces\\github\\storify\\js\\src\\gui\\photoTimeline.js","./helper.js":"C:\\workspaces\\github\\storify\\js\\src\\helper.js"}],"C:\\workspaces\\github\\storify\\js\\src\\SStory.js":[function(require,module,exports){
 //SStory
 
 var helper = require('./helper.js')();
@@ -742,6 +785,9 @@ function Timeline(story, opts, cb) {
     };
     this.getFrameAtTime = function(_p) {
         return self.getFrameAtPerc(self.getPercAtTime(_p));
+    };
+    this.getFrameAtIndex = function(_i) {
+        return self.frames[_i];
     };
     this.extend = function(newstart, newend) {
         //console.info(self.frames, helper.shallowCopy(self.frames));
@@ -1068,8 +1114,8 @@ function S(opts) {
 
         
         /*RENDER GPS EVENTS JUST ADDED - to be moved inside the timeline code*/
-        var leftoff = 100;
-        var rightoff = 100;
+        var leftoff = 0;
+        var rightoff = 0;
         for (var i = that.frames.length - 1; i >= 0; i--) {
             var tmpFrame = that.frames[i];
             var width = that.div.width() - leftoff - rightoff;
@@ -1087,17 +1133,7 @@ function S(opts) {
                     if (!ev.isReal){
                         $div.addClass('not-real');
                     }
-                    $div.ev = ev;                    
-                    $div.click(function(event){
-                        var offset = event.clientX;
-                        var perc = (offset * 100 / that.div.width()).toFixed(2);
-                        var frame = that.getFrameAtPerc(perc);
-                        self.bus.publish('EVENT.GUI.FRAME.CLICK',{
-                            timeline: that,
-                            perc : perc,
-                            offset: offset,
-                            frame: frame});
-                    });
+                    $div.ev = ev;   
                     that.div.append($div);                    
                 };
             };
@@ -1113,14 +1149,19 @@ function S(opts) {
                 perc : perc,
                 offset: offset,
                 frame: frame});
-        });             
+        });
+
+        self.sgui.dateTimeline.goTo(0);
+
     });
-    this.subscribe(self,'EVENT.STORY.REFRESH.DATE',function(params){
-        self.sgui.kmlTimeline.initialize();
+    
+    this.subscribe(self,'EVENT.STORY.REFRESH.DATE',function(params){ //this event is 
+        //self.sgui.kmlTimeline.initialize();
+        self.sgui.initializeTimelines();
     });   
-    this.subscribe(self,'EVENT.GUI.NAVIGATETO.KMLFRAME',function(params){
-        var frame = params.frame;
-        var index = params.frame.index;
+    this.subscribe(self,'EVENT.GUI.NAVIGATETO.FRAME',function(params){
+        var index = params.index;
+        var frame = self.sgui.kmlTimeline.getFrameAtIndex(index);
         if (frame.events && frame.events.length>=1){
             var ev = frame.events[0];
             if (ev instanceof GpsEvent) {
@@ -1128,7 +1169,28 @@ function S(opts) {
                 self.sgui.marker.setPosition(self.sgui.map.getCenter());
             }
         }
-    });     
+    }); 
+
+    this.subscribe(self,'EVENT.GUI.NAVIGATETO.FRAME',function(params){
+        
+    });
+
+    /*BIND KEYBOARD*/    
+    $(document).keydown(function(e) {
+        switch (e.which) {
+            case 32: 
+                return;
+            case 37: //left
+                self.sgui.prevFrame();
+                return;
+            case 39: //right
+                self.sgui.nextFrame();
+                return;
+            default:
+                return; // exit this handler for other keys
+        }
+        e.preventDefault(); // prevent the default action (scroll / move caret)
+    });
 
 }
 

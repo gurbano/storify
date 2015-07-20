@@ -88,8 +88,8 @@ function S(opts) {
 
         
         /*RENDER GPS EVENTS JUST ADDED - to be moved inside the timeline code*/
-        var leftoff = 100;
-        var rightoff = 100;
+        var leftoff = 0;
+        var rightoff = 0;
         for (var i = that.frames.length - 1; i >= 0; i--) {
             var tmpFrame = that.frames[i];
             var width = that.div.width() - leftoff - rightoff;
@@ -107,17 +107,7 @@ function S(opts) {
                     if (!ev.isReal){
                         $div.addClass('not-real');
                     }
-                    $div.ev = ev;                    
-                    $div.click(function(event){
-                        var offset = event.clientX;
-                        var perc = (offset * 100 / that.div.width()).toFixed(2);
-                        var frame = that.getFrameAtPerc(perc);
-                        self.bus.publish('EVENT.GUI.FRAME.CLICK',{
-                            timeline: that,
-                            perc : perc,
-                            offset: offset,
-                            frame: frame});
-                    });
+                    $div.ev = ev;   
                     that.div.append($div);                    
                 };
             };
@@ -133,14 +123,19 @@ function S(opts) {
                 perc : perc,
                 offset: offset,
                 frame: frame});
-        });             
+        });
+
+        self.sgui.dateTimeline.goTo(0);
+
     });
-    this.subscribe(self,'EVENT.STORY.REFRESH.DATE',function(params){
-        self.sgui.kmlTimeline.initialize();
+    
+    this.subscribe(self,'EVENT.STORY.REFRESH.DATE',function(params){ //this event is 
+        //self.sgui.kmlTimeline.initialize();
+        self.sgui.initializeTimelines();
     });   
-    this.subscribe(self,'EVENT.GUI.NAVIGATETO.KMLFRAME',function(params){
-        var frame = params.frame;
-        var index = params.frame.index;
+    this.subscribe(self,'EVENT.GUI.NAVIGATETO.FRAME',function(params){
+        var index = params.index;
+        var frame = self.sgui.kmlTimeline.getFrameAtIndex(index);
         if (frame.events && frame.events.length>=1){
             var ev = frame.events[0];
             if (ev instanceof GpsEvent) {
@@ -148,7 +143,28 @@ function S(opts) {
                 self.sgui.marker.setPosition(self.sgui.map.getCenter());
             }
         }
-    });     
+    }); 
+
+    this.subscribe(self,'EVENT.GUI.NAVIGATETO.FRAME',function(params){
+        
+    });
+
+    /*BIND KEYBOARD*/    
+    $(document).keydown(function(e) {
+        switch (e.which) {
+            case 32: 
+                return;
+            case 37: //left
+                self.sgui.prevFrame();
+                return;
+            case 39: //right
+                self.sgui.nextFrame();
+                return;
+            default:
+                return; // exit this handler for other keys
+        }
+        e.preventDefault(); // prevent the default action (scroll / move caret)
+    });
 
 }
 

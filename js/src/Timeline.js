@@ -61,6 +61,9 @@ function Timeline(story, opts, cb) {
     this.getFrameAtTime = function(_p) {
         return self.getFrameAtPerc(self.getPercAtTime(_p));
     };
+    this.getFrameAtIndex = function(_i) {
+        return self.frames[_i];
+    };
     this.extend = function(newstart, newend) {
         //console.info(self.frames, helper.shallowCopy(self.frames));
         var frameCopy = helper.shallowCopy(self.frames);

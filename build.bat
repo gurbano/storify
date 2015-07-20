@@ -1,1 +1,0 @@
-watchify .\js\storify.js -o .\js\dist\storify.js
