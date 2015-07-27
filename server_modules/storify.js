@@ -1,5 +1,7 @@
 var xml2js = require('xml2js');
 var fs = require('fs');
+var ExifImage = require('exif').ExifImage;
+
 
 exports = module.exports = function($) {
     var self = this; //things are gonna get nasty
@@ -33,6 +35,24 @@ exports = module.exports = function($) {
             }
             callback(null, obj);
         });
+    };
+
+    self.parsePhoto = function(content, _path,_name, callback) {
+        try {
+            new ExifImage({ image : _path }, function (error, exifData) {
+                //console.log(error,exifData);
+                var ret ={};
+                ret.exif = exifData;
+                ret.path = _name;
+                if (error)
+                    callback(error,ret);
+                else{
+                    callback(null,ret); // Do something with your data! 
+                }
+            });
+        } catch (error) {
+            console.log('Error: ' + error.message);
+        }
     };
 
 

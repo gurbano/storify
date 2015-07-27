@@ -3,11 +3,15 @@ module.exports = Helper;
 function Helper() {
     if (!(this instanceof Helper)) return new Helper();
     this.DATE_FORMAT = 'dd MM hh:ii';
-    this.FB_DATE = 'dd/mm/yyyy hh:ii'
+    this.FB_DATE = 'dd/MM/yyyy hh:ii';
+    this.EXIF_DATE = 'YYYY:MM:DD hh:mm:ss';//2015:04:26 16:46:27
     return this;
 }
 Helper.prototype.get = function() {
     return this;
+};
+Helper.prototype.dateToString = function(date) {
+    return $.formatDateTime(this.DATE_FORMAT, date);
 };
 Helper.prototype.dateToString = function(date) {
     return $.formatDateTime(this.DATE_FORMAT, date);
@@ -24,8 +28,8 @@ Helper.prototype.deltaToString = function(delta) {
     var deltaH = ((delta / 1000 / 60 / 60) % 24).toFixed(0);
     return deltaH + 'h ' + deltaM + 'm ' + deltaS + 's';
 };
-Helper.prototype.stringToDate = function(s) {
-    return new Date(s);
+Helper.prototype.stringToDate = function(d, format) {
+    return moment(d, format).toDate();//$.datepicker.parseDate(format,d);
 };
 Helper.prototype.deepCopy = function(oldObject) {
     return $.extend(true, {}, oldObject);

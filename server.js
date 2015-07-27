@@ -1,17 +1,4 @@
-/*ar static = require('node-static');
 
-var file = new static.Server('.');
-
-require('http').createServer(function (request, response) {
-    request.addListener('end', function () {
-        //
-        // Serve files!
-        //
-        file.serve(request, response);
-    }).resume();
-}).listen(8080);
-
-*/
 
 /*SETTING UP DEPENDENCIES*/
 var Hapi = require('hapi');
@@ -38,7 +25,7 @@ var $ = require('./global');
 $.put('test', 'OK');
 $.put('server', server);
 $.put('fsmanager', require('./server_modules/fsmodule')($)); //file system manager
-$.put('storify', require('./server_modules/storify')($)); // utility methods (import kml)
+$.put('storify', require('./server_modules/storify')($)); // utility methods (import kml, pics and so on)
 
 
 

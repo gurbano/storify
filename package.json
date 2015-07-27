@@ -1,0 +1,34 @@
+{
+  "name": "storify",
+  "version": "0.0.1",
+  "description": "",
+  "main": ".server.js",
+  "dependencies": {
+    "ejs": "^2.3.1",
+    "exif": "^0.4.0",
+    "exif-reader": "^1.0.0",
+    "good": "^6.1.2",
+    "good-console": "^5.0.0",
+    "hapi": "^8.4.0",
+    "image-headers": "^0.3.3",
+    "inherits": "^2.0.1",
+    "jade": "^1.9.2",
+    "node-static": "^0.7.6",
+    "path": "^0.11.14",
+    "xml2js": "^0.4.8"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "http://github.com/gurbano/storify"
+  },
+  "author": "g.urbano@gmail.com",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/gurbano/storify/issues"
+  }
+}

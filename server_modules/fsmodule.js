@@ -24,10 +24,7 @@ exports = module.exports = function($) {
             fs.readFile(path, {
                 'encoding': 'utf-8'
             }, function(err, content) {
-                if (err) {
-                    callback(err);
-                }
-                callback(null, content);
+                callback(null, content, path, name);
             });
         });
     };

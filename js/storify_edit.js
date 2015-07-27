@@ -2,9 +2,11 @@ var test = require('./src/test');
 var SGUI = require('./src/SGUI_EDIT');
 var SStory = require('./src/SStory');
 var EventBus = require('./src/EventBus');
-var KMLImporterBackend = require('./src/KMLService');
+var KMLImporterBackend = require('./src/KmlService');
 var GpsEvent = require('./src/GpsEvent.js');
+var PhotoEvent = require('./src/PhotoEvent.js');
 var EventType = require('./src/EventType.js');
+var helper = require('./src/helper.js')();
 
 function S(opts) {
     var self = this;
@@ -35,7 +37,7 @@ function S(opts) {
     this.subscribe(self,'EVENT.GUI.KMLUPLOADED',function(params){
         var importer = new KMLImporterBackend(self);
         self.story.importKmlEvents(params.ret);
-        var _events = importer.importGoogleLocation({
+        var _events = importer.importGoogleLocation({/*
             postProcessing: [{
                 func: importer.pp.fixNeighbours,
                 opts: {
@@ -46,26 +48,75 @@ function S(opts) {
                 func: importer.pp.interpolator,
                 opts: {
                     name: 'interpolator',
-                    sensXY: 1000, //m
-                    sensT: 6 * 60 * 1000 // 6 min
+                    sensXY: 100, //m
+                    sensT: 30 * 60 * 1000 // 6 min
                 }
             }, 
             {
                 func: importer.pp.reducer,
                 opts: {
                     name: 'reducer',
-                    sensXY: 100, //m if two events are one next to each other, merge them
+                    sensXY: 10, //m if two events are one next to each other, merge them
                 }
             ,
             }]
-        }, params, self.sgui.kmlTimeline); //timeline is needed to get infos about frame, scale etc.etc.
-        self.sgui.close('kmlImporter');
+        */}, params, self.sgui.kmlTimeline); //timeline is needed to get infos about frame, scale etc.etc.
+        
         self.publish('EVENT.STORY.REFRESH.KML',{events: _events});
     });
-
-
+    /*WHEN A PHOTO IS UPLOADED, TURN INTO EVENT AND ADD IT TO THE PHOTO TIMELINE*/
+    this.subscribe(self,'EVENT.GUI.PHOTOUPLOADED',function(params){
+        var path = params.path;
+        var exif = params.exif.exif;
+        var time = helper.stringToDate(exif.DateTimeOriginal,helper.EXIF_DATE).getTime();
+        var frame = self.sgui.photoTimeline.getFrameAtTime(time);
+        var ev = new PhotoEvent({
+            start_time : time,
+            end_time : time,
+            name: path,
+            start_frame : frame.index,
+            end_frame : frame.index
+        });
+        self.sgui.photoTimeline.addEvent(ev);
+        self.publish('EVENT.STORY.REFRESH.PHOTO',{events: [ev]});
+    });
     this.subscribe(self,'EVENT.STORY.REFRESH.PHOTO',function(params){
-
+        var events = params.events;
+        var that = self.sgui.photoTimeline;
+        /*RENDER PHOTO JUST ADDED - to be moved inside the timeline code*/
+        var leftoff = 0;
+        var rightoff = 0;
+        for (var i = that.frames.length - 1; i >= 0; i--) {
+            var tmpFrame = that.frames[i];
+            var width = that.div.width() - leftoff - rightoff;
+            var height = that.div.height();
+            var offset = i/that.frames.length;
+            var offsetPx = Math.floor(offset * width) + leftoff;
+            for (var ii = tmpFrame.events.length - 1; ii >= 0; ii--) {
+                var ev = tmpFrame.events[ii];
+                if (ev instanceof PhotoEvent) {                    
+                    var $div = $("<div>", {id: ev.index,  class: "photo-timeline-event"});
+                    $div.attr('index',i);
+                    $div.css('left',  offsetPx +'px');
+                    $div.css('height',  Math.max(50,Math.min(ev.distance,100)) +'%');
+                    $div.css('bottom','0px');
+                    $div.ev = ev;   
+                    that.div.append($div);   
+                    /*BIND CLICK EVENT ON THE TIMELINE*/
+                    $div.click(function(event){
+                        var offset = event.clientX;
+                        var perc = (offset * 100 / that.div.width()).toFixed(2);
+                        var frame = that.getFrameAtPerc(perc);
+                        self.bus.publish('EVENT.GUI.NAVIGATETO.FRAME',{
+                            timeline: that,
+                            perc : perc,
+                            offset: offset,
+                            frame: frame,
+                            index: frame.index});
+                    });                 
+                };
+            };
+        };
                  
     });
 
@@ -146,7 +197,9 @@ function S(opts) {
     }); 
 
     this.subscribe(self,'EVENT.GUI.NAVIGATETO.FRAME',function(params){
-        
+        var index = params.index;
+        var frame = self.sgui.dateTimeline.getFrameAtIndex(index);
+        self.sgui.dateTimeline.setDate(frame.time);
     });
 
     /*BIND KEYBOARD*/    

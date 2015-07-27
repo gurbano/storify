@@ -1,5 +1,5 @@
 var Frame = require('./Frame.js');
-var helper = require('./storify/Helper.js')();
+var helper = require('./helper.js')();
 
 module.exports = Timeline;
 

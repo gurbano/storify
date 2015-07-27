@@ -56,7 +56,7 @@ KMLImporter.prototype.postInit = function() {
     this.drop = myDropzone;
 };
 
-var KMLImporterBackend = require('./services/KMLService.js');
+var KMLImporterBackend = require('./services/KmlService.js');
 KMLImporter.prototype.importKML = function(res, opts) {
     var start = new Date(res.start)
     var end = new Date(res.end)

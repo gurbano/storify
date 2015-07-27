@@ -1,4 +1,4 @@
-(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({"C:\\workspaces\\github\\storify\\js\\src\\Event.js":[function(require,module,exports){
+(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 var EventType = require('./EventType.js');
 module.exports = Event;
 
@@ -14,7 +14,7 @@ function Event(opts) {
     return this;
 }
 
-},{"./EventType.js":"C:\\workspaces\\github\\storify\\js\\src\\EventType.js"}],"C:\\workspaces\\github\\storify\\js\\src\\EventBus.js":[function(require,module,exports){
+},{"./EventType.js":3}],2:[function(require,module,exports){
 module.exports = EventManager
 
 
@@ -57,7 +57,7 @@ function EventManager(app, opts) {
     return this;
 };
 
-},{}],"C:\\workspaces\\github\\storify\\js\\src\\EventType.js":[function(require,module,exports){
+},{}],3:[function(require,module,exports){
 module.exports ={
 	GENERIC : {id : 000, type : 'GENERIC'},
 	POSITION : {id : 100, type : 'POSITION'},
@@ -65,7 +65,7 @@ module.exports ={
 	VIDEO  :{id : 300, type : 'VIDEO'},
 	MUSIC  :{id : 400, type : 'MUSIC'},
 };
-},{}],"C:\\workspaces\\github\\storify\\js\\src\\Frame.js":[function(require,module,exports){
+},{}],4:[function(require,module,exports){
 var EventType = require('./EventType.js');
 var GpsEvent = require('./GpsEvent.js');
 var Event = require('./Event.js');
@@ -97,7 +97,7 @@ Frame.prototype.getEventsByType = function(type) {
 	}
 	return ret;
 };
-},{"./Event.js":"C:\\workspaces\\github\\storify\\js\\src\\Event.js","./EventType.js":"C:\\workspaces\\github\\storify\\js\\src\\EventType.js","./GpsEvent.js":"C:\\workspaces\\github\\storify\\js\\src\\GpsEvent.js"}],"C:\\workspaces\\github\\storify\\js\\src\\GpsEvent.js":[function(require,module,exports){
+},{"./Event.js":1,"./EventType.js":3,"./GpsEvent.js":5}],5:[function(require,module,exports){
 var inherits = require('inherits');
 var Event = require('./Event.js');
 var EventType = require('./EventType.js');
@@ -120,145 +120,9 @@ function GpsEvent(opts){
 };
 
 inherits(GpsEvent,Event);
-},{"./Event.js":"C:\\workspaces\\github\\storify\\js\\src\\Event.js","./EventType.js":"C:\\workspaces\\github\\storify\\js\\src\\EventType.js","inherits":"C:\\workspaces\\github\\storify\\node_modules\\inherits\\inherits_browser.js"}],"C:\\workspaces\\github\\storify\\js\\src\\Helper.js":[function(require,module,exports){
-module.exports = Helper;
-
-function Helper() {
-    if (!(this instanceof Helper)) return new Helper();
-    this.DATE_FORMAT = 'dd MM hh:ii';
-    this.FB_DATE = 'dd/mm/yyyy hh:ii'
-    return this;
-}
-Helper.prototype.get = function() {
-    return this;
-};
-Helper.prototype.dateToString = function(date) {
-    return $.formatDateTime(this.DATE_FORMAT, date);
-};
-Helper.prototype.toFbDate = function(date) {
-    return date.getTime();
-};
-Helper.prototype.msToString = function(date) {
-    return $.formatDateTime(this.DATE_FORMAT, new Date(date));
-};
-Helper.prototype.deltaToString = function(delta) {
-    var deltaS = ((delta / 1000) % 60).toFixed(0);
-    var deltaM = ((delta / 1000 / 60) % 60).toFixed(0);
-    var deltaH = ((delta / 1000 / 60 / 60) % 24).toFixed(0);
-    return deltaH + 'h ' + deltaM + 'm ' + deltaS + 's';
-};
-Helper.prototype.stringToDate = function(s) {
-    return new Date(s);
-};
-Helper.prototype.deepCopy = function(oldObject) {
-    return $.extend(true, {}, oldObject);
-};
-Helper.prototype.shallowCopy = function(oldObject) {
-    return $.extend({}, oldObject);
-};
-Helper.prototype.random = function(min, max) {
-    return Math.random() * (max - min) + min;
-};
-Helper.prototype.randomInt = function(min, max) {
-    return Math.floor(Math.random() * (max - min + 1)) + min;
-};
-Helper.prototype.extend = function(a, b) {
-    for (var key in b) {
-        if (b.hasOwnProperty(key)) {
-            a[key] = b[key];
-        }
-    }
-
-    return a;
-};
-
-Helper.prototype.maximize = function($div) {
-    $div.width($(window).width());
-    $div.height($(window).height());
-};
-
-Helper.prototype.debounce = function(func, threshold, execAsap) {
-    var timeout;
-
-    return function debounced() {
-        var obj = this,
-            args = arguments;
-
-        function delayed() {
-            if (!execAsap)
-                func.apply(obj, args);
-            timeout = null;
-        };
-
-        if (timeout)
-            clearTimeout(timeout);
-        else if (execAsap)
-            func.apply(obj, args);
-
-        timeout = setTimeout(delayed, threshold || 100);
-    };
-};
-
-Helper.prototype.distance = function(from, to) {
-    try {
-        return google.maps.geometry.spherical.computeDistanceBetween(from, to);
-    } catch (e) {
-        return 0;
-    }
-};
-Helper.prototype.speedMS = function(from, to, ms) {
-    var m = google.maps.geometry.spherical.computeDistanceBetween(from, to);
-    var speed = m / (1000 * ms);
-    return speed;
-};
-Helper.prototype.speedKmH = function(from, to, ms) {
-    var speedKm = (this.speedMS(from, to, ms) //m/s
-        * 60 // m/min
-        * 60 // m/h
-    ) / 1000; //km/h
-    return speedKm;
-};
-
-
-
-
-
-Helper.prototype.easeInOutQuad = function(t, b, c, d) {
-    if (t < d / 2) return 2 * c * t * t / (d * d) + b;
-    var ts = t - d / 2;
-    return -2 * c * ts * ts / (d * d) + 2 * c * ts / d + c / 2 + b;
-}
-
-
-
-
-/**/
-
-Helper.prototype.interpolate = function(val, min, max, new_min, new_max) {
-    //         (b - a)(x - min)
-    // f(x) = -- -- -- -- -- -- -- + a
-    //             max - min
-    //             
-
-    var fx = new_min + (((new_max-new_min)*(val - min))/(max - min))
-    return fx;
-};
-Helper.prototype.dayOfTheYear = function(date) {
-    var j1 = new Date(date);
-    j1.setMonth(0, 0);
-    return Math.round((date - j1) / 8.64e7);
-};
-
-Helper.prototype.getUID = function() {
-    return '#' + new Date().getTime();
-}
-
-
-
-
-},{}],"C:\\workspaces\\github\\storify\\js\\src\\KMLService.js":[function(require,module,exports){
+},{"./Event.js":1,"./EventType.js":3,"inherits":18}],6:[function(require,module,exports){
 module.exports = KMLService;
-var helper = require('./Helper.js')();
+var helper = require('./helper.js')();
 var GpsEvent = require('./GpsEvent.js');
 /**
  * GMAP MODULE
@@ -459,11 +323,25 @@ KMLService.prototype.importGoogleLocation = function(opts, values, timeline) {
     return events;
 };
 
-},{"./GpsEvent.js":"C:\\workspaces\\github\\storify\\js\\src\\GpsEvent.js","./Helper.js":"C:\\workspaces\\github\\storify\\js\\src\\Helper.js"}],"C:\\workspaces\\github\\storify\\js\\src\\SGUI_EDIT.js":[function(require,module,exports){
+},{"./GpsEvent.js":5,"./helper.js":15}],7:[function(require,module,exports){
+var inherits = require('inherits');
+var Event = require('./Event.js');
+var EventType = require('./EventType.js');
+
+module.exports = PhotoEvent;
+function PhotoEvent(opts){
+	if (!(this instanceof PhotoEvent)) return new PhotoEvent(opts);
+	Event.call(this,opts);
+	this.type = EventType.PHOTO;
+	return this;
+};
+
+inherits(PhotoEvent,Event);
+},{"./Event.js":1,"./EventType.js":3,"inherits":18}],8:[function(require,module,exports){
 //SGUI
 var Timeline = require('./Timeline.js');
 var config = {};
-config.kmlimport = require('./gui/kmlImporter.js');
+config.kmlimport = require('./gui/kmlimporter.js');
 config.kmltimeline = require('./gui/kmlTimeline.opt.js');
 config.phototimeline = require('./gui/photoTimeline.js');
 config.datetimeline = require('./gui/dateTimeline.js');
@@ -481,6 +359,7 @@ function SGUI(app, opts) {
     this.guis = {};
     this.current = 0; //Current frame selected
     /*KML IMPORTER*/
+    /*
     var importerGUI = this.addGUI('kmlImporter',{classes: 'EDIT-GUI', config: config.kmlimport });
     var myDropzone = new Dropzone("#drop_target", {
        		url: "/uploadKML"
@@ -494,6 +373,7 @@ function SGUI(app, opts) {
 	myDropzone.on("uploadprogress", function(file, progress) {
 
 	});
+	*/
 	this.initializeTimelines = function(){
 		this.photoTimeline.initialize();
 		this.kmlTimeline.initialize();
@@ -520,11 +400,23 @@ function SGUI(app, opts) {
     this.photoTimeline = new Timeline(app.story, config.phototimeline, function(that){
 		self.addGUI('photo-timeline-wrapper',{classes: 'VIEW-GUI', config: that.opts });
 		that.div = $('#photo-timeline-wrapper > div');
+		that.dropZone = new Dropzone("#photo-timeline-wrapper > div", {
+       		url: "/uploadPhoto"
+		});
+		that.dropZone.on("success", function(file, res) {
+			self.app.bus.publish('EVENT.GUI.PHOTOUPLOADED',res);
+		});
 	});
 	/*KML TIMELINE*/
 	this.kmlTimeline = new Timeline(app.story, config.kmltimeline, function(that){
 		self.addGUI('kml-timeline-wrapper',{classes: 'VIEW-GUI', config: that.opts });
 		that.div = $('#kml-timeline-wrapper > div');
+		that.dropZone = new Dropzone("#kml-timeline-wrapper > div", {
+       		url: "/uploadKML"
+		});
+		that.dropZone.on("success", function(file, res) {
+			self.app.bus.publish('EVENT.GUI.KMLUPLOADED',res);
+		});
 	});
     /*Calendar timeline*/
     this.dateTimeline = new Timeline(app.story, config.datetimeline, function(that){
@@ -539,6 +431,7 @@ function SGUI(app, opts) {
     	}
     	that.goTo = function(index){
     		var frame =  self.dateTimeline.getFrameAtIndex(index);
+
 	        if (frame){
 	          	self.current = frame.index;
 	           	self.app.bus.publish('EVENT.GUI.NAVIGATETO.FRAME',{
@@ -643,7 +536,7 @@ SGUI.prototype.addGUI = function(_id, opts) {
 
 	return $div;
 };
-},{"./Timeline.js":"C:\\workspaces\\github\\storify\\js\\src\\Timeline.js","./gui/dateTimeline.js":"C:\\workspaces\\github\\storify\\js\\src\\gui\\dateTimeline.js","./gui/kmlImporter.js":"C:\\workspaces\\github\\storify\\js\\src\\gui\\kmlImporter.js","./gui/kmlTimeline.opt.js":"C:\\workspaces\\github\\storify\\js\\src\\gui\\kmlTimeline.opt.js","./gui/photoTimeline.js":"C:\\workspaces\\github\\storify\\js\\src\\gui\\photoTimeline.js","./helper.js":"C:\\workspaces\\github\\storify\\js\\src\\helper.js"}],"C:\\workspaces\\github\\storify\\js\\src\\SStory.js":[function(require,module,exports){
+},{"./Timeline.js":10,"./gui/dateTimeline.js":11,"./gui/kmlTimeline.opt.js":12,"./gui/kmlimporter.js":13,"./gui/photoTimeline.js":14,"./helper.js":15}],9:[function(require,module,exports){
 //SStory
 
 var helper = require('./helper.js')();
@@ -722,9 +615,9 @@ SStory.prototype.parseKML = function(content, callback) {
 	});
 };
 
-},{"./helper.js":"C:\\workspaces\\github\\storify\\js\\src\\helper.js"}],"C:\\workspaces\\github\\storify\\js\\src\\Timeline.js":[function(require,module,exports){
+},{"./helper.js":15}],10:[function(require,module,exports){
 var Frame = require('./Frame.js');
-var helper = require('./storify/Helper.js')();
+var helper = require('./helper.js')();
 
 module.exports = Timeline;
 
@@ -823,7 +716,7 @@ function Timeline(story, opts, cb) {
 
 
 
-},{"./Frame.js":"C:\\workspaces\\github\\storify\\js\\src\\Frame.js","./storify/Helper.js":"C:\\workspaces\\github\\storify\\js\\src\\storify\\Helper.js"}],"C:\\workspaces\\github\\storify\\js\\src\\gui\\dateTimeline.js":[function(require,module,exports){
+},{"./Frame.js":4,"./helper.js":15}],11:[function(require,module,exports){
 module.exports  = {
 	width: $(document).width(),
 	height : 200,
@@ -833,7 +726,17 @@ module.exports  = {
 	},
 	addEvents: function(){}
 };
-},{}],"C:\\workspaces\\github\\storify\\js\\src\\gui\\kmlImporter.js":[function(require,module,exports){
+},{}],12:[function(require,module,exports){
+module.exports  = {
+	width: $(document).width(),
+	height : 200,
+	div: '<div class="timeline"><span>KML</span></div>',
+	init: function(wrapper) {
+
+	},
+	addEvents: function(){}
+};
+},{}],13:[function(require,module,exports){
 module.exports = {
 	modal: true,
 	width: 800,
@@ -852,17 +755,7 @@ module.exports = {
 		});		
 	}
 };
-},{}],"C:\\workspaces\\github\\storify\\js\\src\\gui\\kmlTimeline.opt.js":[function(require,module,exports){
-module.exports  = {
-	width: $(document).width(),
-	height : 200,
-	div: '<div class="timeline"><span>KML</span></div>',
-	init: function(wrapper) {
-
-	},
-	addEvents: function(){}
-};
-},{}],"C:\\workspaces\\github\\storify\\js\\src\\gui\\photoTimeline.js":[function(require,module,exports){
+},{}],14:[function(require,module,exports){
 module.exports  = {
 	width: $(document).width(),
 	height : 200,
@@ -872,19 +765,21 @@ module.exports  = {
 	},
 	addEvents: function(){}
 };
-},{}],"C:\\workspaces\\github\\storify\\js\\src\\helper.js":[function(require,module,exports){
-module.exports=require("C:\\workspaces\\github\\storify\\js\\src\\Helper.js")
-},{"C:\\workspaces\\github\\storify\\js\\src\\Helper.js":"C:\\workspaces\\github\\storify\\js\\src\\Helper.js"}],"C:\\workspaces\\github\\storify\\js\\src\\storify\\Helper.js":[function(require,module,exports){
+},{}],15:[function(require,module,exports){
 module.exports = Helper;
 
 function Helper() {
     if (!(this instanceof Helper)) return new Helper();
     this.DATE_FORMAT = 'dd MM hh:ii';
-    this.FB_DATE = 'dd/mm/yyyy hh:ii'
+    this.FB_DATE = 'dd/MM/yyyy hh:ii';
+    this.EXIF_DATE = 'YYYY:MM:DD hh:mm:ss';//2015:04:26 16:46:27
     return this;
 }
 Helper.prototype.get = function() {
     return this;
+};
+Helper.prototype.dateToString = function(date) {
+    return $.formatDateTime(this.DATE_FORMAT, date);
 };
 Helper.prototype.dateToString = function(date) {
     return $.formatDateTime(this.DATE_FORMAT, date);
@@ -901,8 +796,8 @@ Helper.prototype.deltaToString = function(delta) {
     var deltaH = ((delta / 1000 / 60 / 60) % 24).toFixed(0);
     return deltaH + 'h ' + deltaM + 'm ' + deltaS + 's';
 };
-Helper.prototype.stringToDate = function(s) {
-    return new Date(s);
+Helper.prototype.stringToDate = function(d, format) {
+    return moment(d, format).toDate();//$.datepicker.parseDate(format,d);
 };
 Helper.prototype.deepCopy = function(oldObject) {
     return $.extend(true, {}, oldObject);
@@ -984,16 +879,6 @@ Helper.prototype.easeInOutQuad = function(t, b, c, d) {
 }
 
 
-Helper.prototype.setUIModes = function(view, edit) {
-    if (edit && !$('#UI-EDIT').hasClass('active')) {
-        $('#UI-EDIT').addClass('active');
-    };
-    if (view && !$('#UI-VIEW').hasClass('active')) {
-        $('#UI-VIEW').addClass('active');
-    };
-
-};
-
 
 
 /**/
@@ -1020,17 +905,19 @@ Helper.prototype.getUID = function() {
 
 
 
-},{}],"C:\\workspaces\\github\\storify\\js\\src\\test.js":[function(require,module,exports){
+},{}],16:[function(require,module,exports){
 var test = 10;
 module.exports = test;
-},{}],"C:\\workspaces\\github\\storify\\js\\storify_edit.js":[function(require,module,exports){
+},{}],17:[function(require,module,exports){
 var test = require('./src/test');
 var SGUI = require('./src/SGUI_EDIT');
 var SStory = require('./src/SStory');
 var EventBus = require('./src/EventBus');
-var KMLImporterBackend = require('./src/KMLService');
+var KMLImporterBackend = require('./src/KmlService');
 var GpsEvent = require('./src/GpsEvent.js');
+var PhotoEvent = require('./src/PhotoEvent.js');
 var EventType = require('./src/EventType.js');
+var helper = require('./src/helper.js')();
 
 function S(opts) {
     var self = this;
@@ -1061,7 +948,7 @@ function S(opts) {
     this.subscribe(self,'EVENT.GUI.KMLUPLOADED',function(params){
         var importer = new KMLImporterBackend(self);
         self.story.importKmlEvents(params.ret);
-        var _events = importer.importGoogleLocation({
+        var _events = importer.importGoogleLocation({/*
             postProcessing: [{
                 func: importer.pp.fixNeighbours,
                 opts: {
@@ -1072,26 +959,75 @@ function S(opts) {
                 func: importer.pp.interpolator,
                 opts: {
                     name: 'interpolator',
-                    sensXY: 1000, //m
-                    sensT: 6 * 60 * 1000 // 6 min
+                    sensXY: 100, //m
+                    sensT: 30 * 60 * 1000 // 6 min
                 }
             }, 
             {
                 func: importer.pp.reducer,
                 opts: {
                     name: 'reducer',
-                    sensXY: 100, //m if two events are one next to each other, merge them
+                    sensXY: 10, //m if two events are one next to each other, merge them
                 }
             ,
             }]
-        }, params, self.sgui.kmlTimeline); //timeline is needed to get infos about frame, scale etc.etc.
-        self.sgui.close('kmlImporter');
+        */}, params, self.sgui.kmlTimeline); //timeline is needed to get infos about frame, scale etc.etc.
+        
         self.publish('EVENT.STORY.REFRESH.KML',{events: _events});
     });
-
-
+    /*WHEN A PHOTO IS UPLOADED, TURN INTO EVENT AND ADD IT TO THE PHOTO TIMELINE*/
+    this.subscribe(self,'EVENT.GUI.PHOTOUPLOADED',function(params){
+        var path = params.path;
+        var exif = params.exif.exif;
+        var time = helper.stringToDate(exif.DateTimeOriginal,helper.EXIF_DATE).getTime();
+        var frame = self.sgui.photoTimeline.getFrameAtTime(time);
+        var ev = new PhotoEvent({
+            start_time : time,
+            end_time : time,
+            name: path,
+            start_frame : frame.index,
+            end_frame : frame.index
+        });
+        self.sgui.photoTimeline.addEvent(ev);
+        self.publish('EVENT.STORY.REFRESH.PHOTO',{events: [ev]});
+    });
     this.subscribe(self,'EVENT.STORY.REFRESH.PHOTO',function(params){
-
+        var events = params.events;
+        var that = self.sgui.photoTimeline;
+        /*RENDER PHOTO JUST ADDED - to be moved inside the timeline code*/
+        var leftoff = 0;
+        var rightoff = 0;
+        for (var i = that.frames.length - 1; i >= 0; i--) {
+            var tmpFrame = that.frames[i];
+            var width = that.div.width() - leftoff - rightoff;
+            var height = that.div.height();
+            var offset = i/that.frames.length;
+            var offsetPx = Math.floor(offset * width) + leftoff;
+            for (var ii = tmpFrame.events.length - 1; ii >= 0; ii--) {
+                var ev = tmpFrame.events[ii];
+                if (ev instanceof PhotoEvent) {                    
+                    var $div = $("<div>", {id: ev.index,  class: "photo-timeline-event"});
+                    $div.attr('index',i);
+                    $div.css('left',  offsetPx +'px');
+                    $div.css('height',  Math.max(50,Math.min(ev.distance,100)) +'%');
+                    $div.css('bottom','0px');
+                    $div.ev = ev;   
+                    that.div.append($div);   
+                    /*BIND CLICK EVENT ON THE TIMELINE*/
+                    $div.click(function(event){
+                        var offset = event.clientX;
+                        var perc = (offset * 100 / that.div.width()).toFixed(2);
+                        var frame = that.getFrameAtPerc(perc);
+                        self.bus.publish('EVENT.GUI.NAVIGATETO.FRAME',{
+                            timeline: that,
+                            perc : perc,
+                            offset: offset,
+                            frame: frame,
+                            index: frame.index});
+                    });                 
+                };
+            };
+        };
                  
     });
 
@@ -1172,7 +1108,9 @@ function S(opts) {
     }); 
 
     this.subscribe(self,'EVENT.GUI.NAVIGATETO.FRAME',function(params){
-        
+        var index = params.index;
+        var frame = self.sgui.dateTimeline.getFrameAtIndex(index);
+        self.sgui.dateTimeline.setDate(frame.time);
     });
 
     /*BIND KEYBOARD*/    
@@ -1210,7 +1148,7 @@ $(document).ready(function() {
 
 
 
-},{"./src/EventBus":"C:\\workspaces\\github\\storify\\js\\src\\EventBus.js","./src/EventType.js":"C:\\workspaces\\github\\storify\\js\\src\\EventType.js","./src/GpsEvent.js":"C:\\workspaces\\github\\storify\\js\\src\\GpsEvent.js","./src/KMLService":"C:\\workspaces\\github\\storify\\js\\src\\KMLService.js","./src/SGUI_EDIT":"C:\\workspaces\\github\\storify\\js\\src\\SGUI_EDIT.js","./src/SStory":"C:\\workspaces\\github\\storify\\js\\src\\SStory.js","./src/test":"C:\\workspaces\\github\\storify\\js\\src\\test.js"}],"C:\\workspaces\\github\\storify\\node_modules\\inherits\\inherits_browser.js":[function(require,module,exports){
+},{"./src/EventBus":2,"./src/EventType.js":3,"./src/GpsEvent.js":5,"./src/KmlService":6,"./src/PhotoEvent.js":7,"./src/SGUI_EDIT":8,"./src/SStory":9,"./src/helper.js":15,"./src/test":16}],18:[function(require,module,exports){
 if (typeof Object.create === 'function') {
   // implementation from standard node.js 'util' module
   module.exports = function inherits(ctor, superCtor) {
@@ -1235,4 +1173,4 @@ if (typeof Object.create === 'function') {
   }
 }
 
-},{}]},{},["C:\\workspaces\\github\\storify\\js\\storify_edit.js"]);
+},{}]},{},[17]);

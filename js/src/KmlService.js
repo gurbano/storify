@@ -1,5 +1,5 @@
 module.exports = KMLService;
-var helper = require('./Helper.js')();
+var helper = require('./helper.js')();
 var GpsEvent = require('./GpsEvent.js');
 /**
  * GMAP MODULE

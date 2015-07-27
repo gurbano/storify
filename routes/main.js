@@ -51,6 +51,7 @@ module.exports = function($) {
             }
         }
     });
+    /*HANDLE UPLOAD OF KML*/
     server.route({
         method: 'POST',
         path: '/uploadKML',
@@ -67,6 +68,27 @@ module.exports = function($) {
                         reply(ret);
                     });
 
+                });
+            }
+        }
+    });
+    /*HANDLE UPLOAD OF PICTURES*/
+    server.route({
+        method: 'POST',
+        path: '/uploadPhoto',
+        config: {
+            payload: {
+                maxBytes: 209715200,
+                output: 'stream',
+                parse: true
+            },
+            handler: function(request, reply) {
+                var data = request.payload;
+                $.get('fsmanager').upload(data, function(err, content, _path, _name) {                    
+                    $.get('storify').parsePhoto(content, _path, _name, function(err, ret) {
+                        console.info(ret);
+                        reply(ret);
+                    });
                 });
             }
         }

@@ -1,7 +1,7 @@
 //SGUI
 var Timeline = require('./Timeline.js');
 var config = {};
-config.kmlimport = require('./gui/kmlImporter.js');
+config.kmlimport = require('./gui/kmlimporter.js');
 config.kmltimeline = require('./gui/kmlTimeline.opt.js');
 config.phototimeline = require('./gui/photoTimeline.js');
 config.datetimeline = require('./gui/dateTimeline.js');
@@ -19,6 +19,7 @@ function SGUI(app, opts) {
     this.guis = {};
     this.current = 0; //Current frame selected
     /*KML IMPORTER*/
+    /*
     var importerGUI = this.addGUI('kmlImporter',{classes: 'EDIT-GUI', config: config.kmlimport });
     var myDropzone = new Dropzone("#drop_target", {
        		url: "/uploadKML"
@@ -32,6 +33,7 @@ function SGUI(app, opts) {
 	myDropzone.on("uploadprogress", function(file, progress) {
 
 	});
+	*/
 	this.initializeTimelines = function(){
 		this.photoTimeline.initialize();
 		this.kmlTimeline.initialize();
@@ -58,11 +60,23 @@ function SGUI(app, opts) {
     this.photoTimeline = new Timeline(app.story, config.phototimeline, function(that){
 		self.addGUI('photo-timeline-wrapper',{classes: 'VIEW-GUI', config: that.opts });
 		that.div = $('#photo-timeline-wrapper > div');
+		that.dropZone = new Dropzone("#photo-timeline-wrapper > div", {
+       		url: "/uploadPhoto"
+		});
+		that.dropZone.on("success", function(file, res) {
+			self.app.bus.publish('EVENT.GUI.PHOTOUPLOADED',res);
+		});
 	});
 	/*KML TIMELINE*/
 	this.kmlTimeline = new Timeline(app.story, config.kmltimeline, function(that){
 		self.addGUI('kml-timeline-wrapper',{classes: 'VIEW-GUI', config: that.opts });
 		that.div = $('#kml-timeline-wrapper > div');
+		that.dropZone = new Dropzone("#kml-timeline-wrapper > div", {
+       		url: "/uploadKML"
+		});
+		that.dropZone.on("success", function(file, res) {
+			self.app.bus.publish('EVENT.GUI.KMLUPLOADED',res);
+		});
 	});
     /*Calendar timeline*/
     this.dateTimeline = new Timeline(app.story, config.datetimeline, function(that){
@@ -77,6 +91,7 @@ function SGUI(app, opts) {
     	}
     	that.goTo = function(index){
     		var frame =  self.dateTimeline.getFrameAtIndex(index);
+
 	        if (frame){
 	          	self.current = frame.index;
 	           	self.app.bus.publish('EVENT.GUI.NAVIGATETO.FRAME',{
